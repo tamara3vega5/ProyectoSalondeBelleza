@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Salon_Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f0e149affabe0f8537c7ee66fbbf5ca44bd5f1d1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a7a8737c3a0754897b6f34ca50f73fa9b2d1d5fc")]
 [assembly: System.Reflection.AssemblyProductAttribute("Salon_Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Salon_Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
