@@ -1,84 +1,39 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Salon_Api.Data;
-
-// Interfaces
-using Salon_Api.Services.Interfaces;
-
-// Servicios
 using Salon_Api.Services;
+using Salon_Api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ================================================================
-//   1. CONFIGURAR SQL SERVER (CONEXIÓN A LA BASE DE DATOS)
-// ================================================================
+// DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
-// ================================================================
-//   2. REGISTRO DE TODOS LOS SERVICES (DEPENDENCY INJECTION)
-// ================================================================
-
-// 🔐 Autenticación
+// Servicios de dominio
 builder.Services.AddScoped<IAuthService, AuthService>();
-
-// 🧍 Clientes
-builder.Services.AddScoped<IClientesService, ClientesService>();
-
-// 💇 Estilistas
-builder.Services.AddScoped<IEstilistasService, EstilistasService>();
-
-// 💅 Servicios del salón
-builder.Services.AddScoped<IServiciosService, ServiciosService>();
-
-// 🛍 Productos
-builder.Services.AddScoped<IProductosService, ProductosService>();
-
-// 📆 Citas
 builder.Services.AddScoped<ICitasService, CitasService>();
-
-// 🧾 Ventas
+builder.Services.AddScoped<IClientesService, ClientesService>();
 builder.Services.AddScoped<IVentasService, VentasService>();
-
-// 🧾 Detalle de Venta
+builder.Services.AddScoped<IServiciosService, ServiciosService>();
+builder.Services.AddScoped<IEstilistasService, EstilistasService>();
+builder.Services.AddScoped<IProductosService, ProductosService>();
 builder.Services.AddScoped<IDetalleVentaService, DetalleVentaService>();
 
-
-
-// ================================================================
-//   3. CONTROLADORES
-// ================================================================
 builder.Services.AddControllers();
-
-
-// ================================================================
-//   4. SWAGGER (Documentación API)
-// ================================================================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-// ================================================================
-//   5. CORS — PERMITIR ACCESO DESDE EL FRONTEND
-// ================================================================
-builder.Services.AddCors(options =>
+// CORS abierto para tu frontend
+builder.Services.AddCors(opt =>
 {
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
+    opt.AddPolicy("AllowAll", p => p
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
 });
-
 
 var app = builder.Build();
 
-
-// ================================================================
-//   6. MIDDLEWARE
-// ================================================================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -86,11 +41,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowAll");
 app.UseAuthorization();
 
-app.UseCors("AllowAll");
-
 app.MapControllers();
-
 app.Run();
