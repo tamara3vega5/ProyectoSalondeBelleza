@@ -1,16 +1,17 @@
 // =======================================================
-// carrito.js — Versión Final Integrada con API
+// carrito.js — Versión Final Integrada con API REAL
 // =======================================================
 
 const API_PRODUCTOS = "https://localhost:7024/api/Productos";
 const API_VENTAS = "https://localhost:7024/api/Ventas";
+const API_DETALLE = "https://localhost:7024/api/DetalleVenta";
 
 // Estructura básica del carrito
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-// ================================
+// =======================================================
 // 1. Cargar productos al iniciar
-// ================================
+// =======================================================
 document.addEventListener("DOMContentLoaded", () => {
     cargarProductos();
     mostrarCarrito();
@@ -21,8 +22,9 @@ async function cargarProductos() {
 
     try {
         const res = await fetch(API_PRODUCTOS);
-        const productos = await res.json();
+        if (!res.ok) throw new Error("Error obteniendo productos");
 
+        const productos = await res.json();
         contenedor.innerHTML = "";
 
         productos.forEach(p => {
@@ -45,9 +47,9 @@ async function cargarProductos() {
     }
 }
 
-// ================================
+// =======================================================
 // 2. Agregar producto al carrito
-// ================================
+// =======================================================
 window.agregarAlCarrito = function (id, nombre, precio) {
 
     let item = carrito.find(p => p.id === id);
@@ -69,9 +71,9 @@ window.agregarAlCarrito = function (id, nombre, precio) {
     mostrarCarrito();
 };
 
-// ================================
+// =======================================================
 // 3. Mostrar carrito en pantalla
-// ================================
+// =======================================================
 function mostrarCarrito() {
     const tabla = document.getElementById("carrito-body");
     const totalSpan = document.getElementById("total");
@@ -81,6 +83,8 @@ function mostrarCarrito() {
     let total = 0;
 
     carrito.forEach((item, index) => {
+        if (isNaN(item.subtotal)) item.subtotal = item.precio;
+
         total += item.subtotal;
 
         tabla.innerHTML += `
@@ -99,25 +103,25 @@ function mostrarCarrito() {
     totalSpan.innerText = "$" + total.toFixed(2);
 }
 
-// ================================
+// =======================================================
 // 4. Eliminar un producto del carrito
-// ================================
+// =======================================================
 window.eliminarItem = function (index) {
     carrito.splice(index, 1);
     guardarCarrito();
     mostrarCarrito();
 };
 
-// ================================
+// =======================================================
 // 5. Guardar carrito en localStorage
-// ================================
+// =======================================================
 function guardarCarrito() {
     localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
-// ================================
-// 6. Finalizar compra (Registrar Venta + Detalle)
-// ================================
+// =======================================================
+// 6. Finalizar compra (Venta + Detalles)
+// =======================================================
 document.getElementById("btn-comprar").addEventListener("click", async () => {
 
     const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -131,11 +135,11 @@ document.getElementById("btn-comprar").addEventListener("click", async () => {
         return;
     }
 
-    // Calcular total
+    // Total de venta
     let total = carrito.reduce((sum, item) => sum + item.subtotal, 0);
 
     // -----------------------------
-    // 1. Registrar venta en API
+    // 1. Registrar Venta
     // -----------------------------
     const venta = {
         idCliente: usuario.idCliente,
@@ -166,7 +170,7 @@ document.getElementById("btn-comprar").addEventListener("click", async () => {
     }
 
     // -----------------------------
-    // 2. Registrar detalle venta
+    // 2. Registrar cada DetalleVenta
     // -----------------------------
     for (const item of carrito) {
 
@@ -178,11 +182,15 @@ document.getElementById("btn-comprar").addEventListener("click", async () => {
         };
 
         try {
-            await fetch("https://localhost:7024/api/DetalleVenta", {
+            const resDetalle = await fetch(API_DETALLE, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(detalle)
             });
+
+            if (!resDetalle.ok) {
+                console.error("Error detalle venta:", await resDetalle.text());
+            }
 
         } catch (error) {
             console.error("Error registrando detalle:", error);

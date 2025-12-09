@@ -1,5 +1,5 @@
 // =======================================================
-// citas.js (Versión Final Integrada con API)
+// citas.js (Versión Final totalmente adaptada a tu API .NET)
 // =======================================================
 
 const API_SERVICIOS = "https://localhost:7024/api/Servicios";
@@ -7,7 +7,7 @@ const API_ESTILISTAS = "https://localhost:7024/api/Estilistas";
 const API_CITAS = "https://localhost:7024/api/Citas";
 
 // =======================================================
-// 1. Cargar servicios al iniciar la página
+// 1. Cargar servicios al iniciar
 // =======================================================
 document.addEventListener("DOMContentLoaded", async () => {
     await cargarServicios();
@@ -18,6 +18,7 @@ async function cargarServicios() {
 
     try {
         const res = await fetch(API_SERVICIOS);
+        if (!res.ok) throw new Error("Error obteniendo servicios");
         const servicios = await res.json();
 
         servicioSelect.innerHTML = `<option value="">Seleccione un servicio</option>`;
@@ -38,54 +39,52 @@ async function cargarServicios() {
 document.getElementById("servicio").addEventListener("change", cargarEstilistasFiltrados);
 
 // =======================================================
-// 2. FILTRAR ESTILISTAS SEGÚN EL SERVICIO
+// 2. Filtrar estilistas según el servicio elegido
 // =======================================================
 async function cargarEstilistasFiltrados() {
     const servicioSelect = document.getElementById("servicio");
     const estilistaSelect = document.getElementById("estilista");
 
     const idServicio = servicioSelect.value;
+
     if (!idServicio) {
         estilistaSelect.innerHTML = `<option value="">Seleccione un estilista</option>`;
         return;
     }
 
-    // Obtener el nombre del servicio
     const nombreServicio = servicioSelect.options[servicioSelect.selectedIndex].dataset.nombre.toLowerCase();
-
     let especialidadBuscada = "";
 
-    // ================================================
-    // MAPEO AUTOMÁTICO DE SERVICIO → ESPECIALIDAD
-    // ================================================
-    if (nombreServicio.includes("acrí")) especialidadBuscada = "Uñas";
+    // Mapeo automático
+    if (nombreServicio.includes("acr")) especialidadBuscada = "Uñas";
     else if (nombreServicio.includes("uña")) especialidadBuscada = "Uñas";
     else if (nombreServicio.includes("corte")) especialidadBuscada = "Cabello";
     else if (nombreServicio.includes("tinte")) especialidadBuscada = "Cabello";
-    else if (nombreServicio.includes("keratina")) especialidadBuscada = "Cabello";
+    else if (nombreServicio.includes("kerat")) especialidadBuscada = "Cabello";
     else if (nombreServicio.includes("facial")) especialidadBuscada = "Faciales";
     else if (nombreServicio.includes("maquillaje")) especialidadBuscada = "Maquillaje";
-    else especialidadBuscada = ""; // servicio general
 
     try {
         const res = await fetch(API_ESTILISTAS);
         const estilistas = await res.json();
 
-        const filtrados = estilistas.filter(e => 
-            especialidadBuscada === "" 
-            || (e.especialidad && e.especialidad.toLowerCase() === especialidadBuscada.toLowerCase())
+        const filtrados = estilistas.filter(e =>
+            especialidadBuscada === "" ||
+            (e.especialidad && e.especialidad.toLowerCase() === especialidadBuscada.toLowerCase())
         );
 
         estilistaSelect.innerHTML = `<option value="">Seleccione un estilista</option>`;
 
         if (filtrados.length === 0) {
-            estilistaSelect.innerHTML = `<option value="">No hay estilistas disponibles</option>`;
+            estilistaSelect.innerHTML += `<option value="">No hay estilistas disponibles</option>`;
             return;
         }
 
         filtrados.forEach(e => {
             estilistaSelect.innerHTML += `
-                <option value="${e.idEstilista}">${e.nombre} (${e.especialidad})</option>
+                <option value="${e.idEstilista}">
+                    ${e.nombre} (${e.especialidad})
+                </option>
             `;
         });
 
@@ -95,7 +94,7 @@ async function cargarEstilistasFiltrados() {
 }
 
 // =======================================================
-// 3. ENVIAR CITA A LA API
+// 3. Enviar cita al backend
 // =======================================================
 document.getElementById("citaForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -106,14 +105,16 @@ document.getElementById("citaForm").addEventListener("submit", async (e) => {
     const idCliente = usuario.idCliente;
     const idServicio = document.getElementById("servicio").value;
     const idEstilista = document.getElementById("estilista").value;
-    const fecha = document.getElementById("fecha").value;
+    const fechaInput = document.getElementById("fecha").value;
 
-    if (!idServicio || !idEstilista || !fecha) {
+    if (!idServicio || !idEstilista || !fechaInput) {
         alert("Complete todos los campos.");
         return;
     }
 
-    const fechaDate = new Date(fecha);
+    const fechaDate = new Date(fechaInput);
+
+    // Validación de fecha
     if (fechaDate < new Date()) {
         alert("No puede seleccionar una fecha pasada.");
         return;
@@ -123,7 +124,8 @@ document.getElementById("citaForm").addEventListener("submit", async (e) => {
         idCliente: idCliente,
         idServicio: parseInt(idServicio),
         idEstilista: parseInt(idEstilista),
-        fecha: fechaDate.toISOString()
+        fecha: fechaDate.toISOString(), // formato aceptado por tu API
+        estado: "Confirmado"
     };
 
     try {
@@ -133,9 +135,10 @@ document.getElementById("citaForm").addEventListener("submit", async (e) => {
             body: JSON.stringify(cita)
         });
 
+        const data = await res.json();
+
         if (!res.ok) {
-            const error = await res.json();
-            alert(error.mensaje || "No se pudo registrar la cita.");
+            alert(data.mensaje || "No se pudo registrar la cita.");
             return;
         }
 

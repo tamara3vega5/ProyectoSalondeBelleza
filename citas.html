@@ -3,157 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendar Citas</title>
+    <title>Agendar Citas | MatchaSalon</title>
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body>
 
-    <!-- =============== HEADER =============== -->
-    <header class="header">
-        <img class="bg" src="Imagen/bg.svg" alt="">
+<!-- =============== HEADER =============== -->
+<header class="header">
+    <img class="bg" src="Imagen/bg.svg" alt="">
 
-        <div class="menu container">
-            <a href="#" class="logo">Agendar Citas</a>
+    <div class="menu container">
+        <a href="index.html" class="logo">Agendar Citas</a>
 
-            <input type="checkbox" id="menu">
-            <label for="menu"><img src="Imagen/menu.svg" class="menu-icono" alt=""></label>
+        <input type="checkbox" id="menu">
+        <label for="menu"><img src="Imagen/menu.svg" class="menu-icono" alt=""></label>
 
-            <nav class="navbar">
-                <ul>
-                    <li><a href="index.html">Inicio</a></li>
-                    <li><a href="Servicios.html">Servicios</a></li>
-                    <li><a href="Productos.html">Productos</a></li>
-                    <li><a href="citas.html">Agendar Citas</a></li>
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="Servicios.html">Servicios</a></li>
+                <li><a href="Productos.html">Productos</a></li>
+                <li><a href="citas.html" class="active">Agendar Citas</a></li>
 
-                    <li class="cart-icon">
-                        <a href="carrito.html">
-                            <svg width="26" height="26" viewBox="0 0 24 24">
-                                <path d="M6 6h15l-2 9H8L6 6zm0 0H3"
-                                    stroke="#5E925C" stroke-width="2" fill="none"/>
-                                <circle cx="10" cy="19" r="1" fill="#5E925C"/>
-                                <circle cx="17" cy="19" r="1" fill="#5E925C"/>
-                            </svg>
-                            <span id="cart-count">0</span>
-                        </a>
-                    </li>
+                <!-- Carrito -->
+                <li class="cart-icon">
+                    <a href="carrito.html">
+                        <svg width="26" height="26" viewBox="0 0 24 24">
+                            <path d="M6 6h15l-2 9H8L6 6zm0 0H3"
+                                stroke="#5E925C" stroke-width="2" fill="none"/>
+                            <circle cx="10" cy="19" r="1" fill="#5E925C"/>
+                            <circle cx="17" cy="19" r="1" fill="#5E925C"/>
+                        </svg>
+                        <span id="cart-count">0</span>
+                    </a>
+                </li>
 
-                    <li class="login-icon">
-                        <a href="login.html">
-                            <svg viewBox="0 0 24 24" width="26" height="26">
-                                <circle cx="12" cy="7" r="4" stroke="#5E925C" stroke-width="2" fill="none"/>
-                                <path d="M4 20c0-4 4-6 8-6s8 2 8 6"
-                                    stroke="#5E925C" stroke-width="2" fill="none"/>
-                            </svg>
-                        </a>
-                    </li>
+                <!-- Sesión del usuario -->
+                <li class="login-icon" id="user-area"></li>
 
-                </ul>
-            </nav>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- =============== FORMULARIO =============== -->
+<section class="citas-section container">
+    <h2>Agendar Cita</h2>
+    <p>Selecciona el servicio y estilista para completar tu reservación.</p>
+
+    <form id="citaForm" class="form-cita">
+
+        <!-- SERVICIO (DINÁMICO) -->
+        <div class="grupo-form">
+            <label>Servicio</label>
+            <select id="servicio" class="select-cita" required>
+                <option value="">Cargando servicios...</option>
+            </select>
         </div>
-    </header>
 
+        <!-- ESTILISTA (DINÁMICO Y FILTRADO) -->
+        <div class="grupo-form">
+            <label>Estilista</label>
+            <select id="estilista" class="select-cita" required>
+                <option value="">Seleccione un servicio primero</option>
+            </select>
+        </div>
 
-    <!-- =============== FORMULARIO =============== -->
-    <section class="citas-section container">
-        <h2>Agendar Cita</h2>
-        <p>Completa el formulario para reservar tu cita.</p>
+        <!-- FECHA -->
+        <div class="grupo-form">
+            <label>Fecha</label>
+            <input type="date" id="fecha" class="input-cita" required>
+        </div>
 
-        <form id="formCita" class="form-cita">
+        <!-- HORA -->
+        <div class="grupo-form">
+            <label>Hora</label>
+            <input type="time" id="hora" class="input-cita" required min="09:00" max="18:00">
+            <small>Horario permitido: 7:00 AM – 5:00 PM</small>
+        </div>
 
-            <div class="grupo-form">
-                <label>Nombre completo</label>
-                <input type="text" id="nombre" class="input-cita" required>
-            </div>
+        <button type="submit" class="btn-agendar">Agendar Cita</button>
 
-            <div class="grupo-form">
-                <label>Correo electrónico</label>
-                <input type="email" id="email" class="input-cita" required>
-            </div>
+        <p id="mensajeConfirmacion" class="confirmacion"></p>
 
-            <div class="grupo-form">
-                <label>Servicio</label>
-                <select id="servicio" class="select-cita" required>
-                    <option value="">Seleccione…</option>
-                    <option value="Uñas acrílicas">Uñas acrílicas</option>
-                    <option value="Manicure + Pedicure">Manicure + Pedicure</option>
-                    <option value="Corte de cabello">Corte de cabello</option>
-                    <option value="Coloración">Coloración</option>
-                </select>
-            </div>
+    </form>
+</section>
 
-            <div class="grupo-form">
-                <label>Estilista</label>
-                <select id="estilista" class="select-cita" required>
-                    <option value="">Seleccione…</option>
-                </select>
-            </div>
+<!-- FOOTER -->
+<footer class="footer container">
+    <div class="footer-links">
 
-            <div class="grupo-form">
-                <label>Fecha</label>
-                <input type="date" id="fecha" class="input-cita" required>
-            </div>
-
-            <div class="grupo-form">
-                <label>Hora</label>
-                <select id="hora" class="select-cita" required>
-                    <option value="">Seleccione…</option>
-                    <option value="7 AM">7 AM</option>
-                    <option value="8 AM">8 AM</option>
-                    <option value="9 AM">9 AM</option>
-                    <option value="10 AM">10 AM</option>
-                    <option value="11 AM">11 AM</option>
-                    <option value="12 PM">12 PM</option>
-                    <option value="1 PM">1 PM</option>
-                    <option value="2 PM">2 PM</option>
-                    <option value="3 PM">3 PM</option>
-                    <option value="4 PM">4 PM</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-agendar">Agendar</button>
-            <p id="mensajeConfirmacion" class="confirmacion"></p>
-        </form>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="footer container">
-        <div class="footer-links">
-            <div class="link">
-                <h3>Contactos</h3>
-                <div class="socials">
-                    <img src="Imagen/s1.svg">
-                    <img src="Imagen/s3.svg">
-                </div>
-            </div>
-            <div class="link">
-                <h3>Redes sociales</h3>
-                <ul>
-                    <li><a>Instagram | @Matcha_Salon</a></li>
-                    <li><a>Correo | matchasalon@gmail.com</a></li>
-                </ul>
-            </div>
-            <div class="link">
-                <h3>Servicios</h3>
-                <ul>
-                    <li><a>Manicure</a></li>
-                    <li><a>Pedicure</a></li>
-                    <li><a>Tintes</a></li>
-                    <li><a>Faciales</a></li>
-                </ul>
-            </div>
-            <div class="link">
-                <h3>Sucursales</h3>
-                <ul>
-                    <li><a>San Francisco | 7am a 5pm</a></li>
-                </ul>
+        <div class="link">
+            <h3>Contactos</h3>
+            <div class="socials">
+                <img src="Imagen/s1.svg">
+                <img src="Imagen/s3.svg">
             </div>
         </div>
-    </footer>
 
-    <!-- SCRIPTS -->
-    <script src="JS/session.js"></script>
-    <script src="JS/carrito.js"></script>
-    <script src="JS/citas.js"></script>
+        <div class="link">
+            <h3>Redes sociales</h3>
+            <ul>
+                <li><a>Instagram | @Matcha_Salon</a></li>
+                <li><a>Correo | matchasalon@gmail.com</a></li>
+            </ul>
+        </div>
+
+        <div class="link">
+            <h3>Servicios</h3>
+            <ul>
+                <li><a>Manicure</a></li>
+                <li><a>Pedicure</a></li>
+                <li><a>Tintes</a></li>
+                <li><a>Faciales</a></li>
+            </ul>
+        </div>
+
+        <div class="link">
+            <h3>Sucursales</h3>
+            <ul>
+                <li><a>San Francisco | 7am a 5pm</a></li>
+            </ul>
+        </div>
+
+    </div>
+</footer>
+
+<!-- JS -->
+<script src="JS/session.js"></script>
+<script src="JS/carrito.js"></script>
+<script src="JS/citas.js"></script>
 
 </body>
 </html>

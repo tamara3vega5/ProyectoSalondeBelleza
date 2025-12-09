@@ -25,9 +25,9 @@
                 <li><a href="Productos.html">Productos</a></li>
                 <li><a href="citas.html">Agendar Citas</a></li>
 
-                <!-- Ícono del carrito -->
+                <!-- Ícono carrito -->
                 <li class="cart-icon">
-                    <a href="carrito.html" aria-label="Carrito">
+                    <a href="carrito.html">
                         <svg width="26" height="26" viewBox="0 0 24 24">
                             <path d="M6 6h15l-2 9H8L6 6zm0 0H3"
                                 stroke="#5E925C" stroke-width="2" fill="none"
@@ -39,138 +39,17 @@
                     </a>
                 </li>
 
-                <li class="login-icon" id="user-area">
-                    <a href="login.html" aria-label="Iniciar Sesión" id="login-link">
-                        <svg viewBox="0 0 24 24" width="26" height="26">
-                            <circle cx="12" cy="7" r="4" stroke="#5E925C" stroke-width="2" fill="none"/>
-                            <path d="M4 20c0-4 4-6 8-6s8 2 8 6"
-                                stroke="#5E925C" stroke-width="2" fill="none" stroke-linecap="round"/>
-                        </svg>
-                    </a>
-                </li>
+                <li id="user-area"></li>
             </ul>
         </nav>
-    </div>
-
-    <div class="header-content container">
-        <div class="header-txt"></div>
     </div>
 </header>
 
 <main class="products container">
-
     <h2>Lista de Productos</h2>
 
-    <div class="service-list"> <!-- reutilizamos el grid de servicios -->
-
-        <!-- PRODUCTO 1 -->
-        <div class="service-card">
-            <img src="Imagen/shampooHerbal.jpg" alt="">
-            <h3>Shampoo Herbal</h3>
-            <p>Repara y fortalece desde el interior.</p>
-
-            <span class="service-price">$12.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Shampoo Efecto Plex" data-precio="12.00">−</button>
-                <span class="qty-display" data-nombre="Shampoo Efecto Plex">0</span>
-                <button class="qty-btn plus" data-nombre="Shampoo Efecto Plex" data-precio="12.00">+</button>
-            </div>
-        </div>
-
-        <!-- PRODUCTO 2 -->
-        <div class="service-card">
-            <img src="Imagen/acondicionadorNutrisoft.jpg" alt="">
-            <h3>Acondicionador Nutrisoft</h3>
-            <p>Hidratación profunda y brillo natural.</p>
-
-            <span class="service-price">$14.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Mascarilla Hair Boost" data-precio="14.00">−</button>
-                <span class="qty-display" data-nombre="Mascarilla Hair Boost">0</span>
-                <button class="qty-btn plus" data-nombre="Mascarilla Hair Boost" data-precio="14.00">+</button>
-            </div>
-        </div>
-
-        <!-- PRODUCTO 3 -->
-        <div class="service-card">
-            <img src="Imagen/cera.jpg" alt="">
-            <h3>Cera de cabello</h3>
-            <p>Cera de cabello para estilizar tus peinados favoritos</p>
-
-            <span class="service-price">$15.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Bye Bye Frizz" data-precio="15.00">−</button>
-                <span class="qty-display" data-nombre="Bye Bye Frizz">0</span>
-                <button class="qty-btn plus" data-nombre="Bye Bye Frizz" data-precio="15.00">+</button>
-            </div>
-        </div>
-
-        <!-- PRODUCTO 4 -->
-        <div class="service-card">
-            <img src="Imagen/gel.jpg" alt="">
-            <h3>Gel para cabello</h3>
-            <p>Gel para estilizar y definir tus rizos durante todo el día</p>
-
-            <span class="service-price">$13.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Monday Smooth Conditioner" data-precio="13.00">−</button>
-                <span class="qty-display" data-nombre="Monday Smooth Conditioner">0</span>
-                <button class="qty-btn plus" data-nombre="Monday Smooth Conditioner" data-precio="13.00">+</button>
-            </div>
-        </div>
-
-        <!-- PRODUCTO 5 -->
-        <div class="service-card">
-            <img src="Imagen/aceite.jpg" alt="">
-            <h3>Aceite de cabello</h3>
-            <p>Repara y reduce el frizz sin dejar grasa.</p>
-
-            <span class="service-price">$28.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Olaplex No.7 Bonding Oil" data-precio="28.00">−</button>
-                <span class="qty-display" data-nombre="Olaplex No.7 Bonding Oil">0</span>
-                <button class="qty-btn plus" data-nombre="Olaplex No.7 Bonding Oil" data-precio="28.00">+</button>
-            </div>
-        </div>
-
-        <!-- PRODUCTO 6 -->
-        <div class="service-card">
-            <img src="Imagen/plancha.jpg" alt="">
-            <h3>Plancha Profesional Titanium Pro</h3>
-            <p>La plancha BaBylissPRO® Nano Titanium™ lleva las planchas alisadoras a otro nivel. Diseñada con características
-            distintivas y bien pensadas que redefinen la facilidad de uso y la excelencia en el rendimiento, esta es la única
-            herramienta que puede lograr cualquier aspecto que desees.</p>
-
-            <span class="service-price">$39.99</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Color WOW Dream Coat" data-precio="25.00">−</button>
-                <span class="qty-display" data-nombre="Color WOW Dream Coat">0</span>
-                <button class="qty-btn plus" data-nombre="Color WOW Dream Coat" data-precio="25.00">+</button>
-            </div>
-        </div>
-        <!--SECCION 7-->
-          <div class="service-card">
-            <img src="Imagen/secadora.jpg" alt="">
-            <h3>Secadora</h3>
-            <p>El secador profesional de alta velocidad Nano Titanium con tecnología iónica doble ofrece tecnología avanzada para un
-            peinado superior.</p>
-
-            <span class="service-price">$39.99</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Color WOW Dream Coat" data-precio="25.00">−</button>
-                <span class="qty-display" data-nombre="Color WOW Dream Coat">0</span>
-                <button class="qty-btn plus" data-nombre="Color WOW Dream Coat" data-precio="25.00">+</button>
-            </div>
-        </div>
-
-    </div>
+    <!-- CONTENEDOR DINÁMICO PARA PRODUCTOS -->
+    <div id="lista-productos" class="service-list"></div>
 </main>
 
 <footer class="footer container">
@@ -200,65 +79,55 @@
                 <li><a href="#">Faciales</a></li>
             </ul>
         </div>
-
-        <div class="link">
-            <h3>Sucursales</h3>
-            <ul>
-                <li><a href="#">San Francisco | 7am a 5pm</a></li>
-            </ul>
-        </div>
     </div>
 </footer>
 
+<!-- ============================
+     SCRIPTS
+============================= -->
 <script src="JS/carrito.js"></script>
+<script src="JS/session.js"></script>
+
 <script>
-/* ============================================================
-   PRODUCTOS DINÁMICOS PARA TIENDA – MATCHASALON
-   ============================================================ */
+/* ===========================================
+   Cargar productos DESDE API .NET
+=========================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
+const API_PRODUCTOS = "https://localhost:7024/api/Productos";
 
-    const contenedor = document.querySelector(".service-list");
-    if (!contenedor) return;
+document.addEventListener("DOMContentLoaded", async () => {
+    const contenedor = document.getElementById("lista-productos");
 
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    try {
+        const res = await fetch(API_PRODUCTOS);
+        const productos = await res.json();
 
-    contenedor.innerHTML = ""; // limpiar productos estáticos
+        contenedor.innerHTML = "";
 
-    productos.forEach(prod => {
-        contenedor.innerHTML += `
-            <div class="service-card">
+        productos.forEach(p => {
+            contenedor.innerHTML += `
+                <div class="service-card">
+                    <img src="Imagen/${p.nombreProducto.replace(/\s+/g,'')}.jpg" alt="${p.nombreProducto}">
+                    
+                    <h3>${p.nombreProducto}</h3>
+                    <p>${p.descripcion}</p>
 
-                <img src="${prod.imagen}" alt="${prod.nombre}">
+                    <span class="service-price">$${p.precio}</span>
 
-                <h3>${prod.nombre}</h3>
-
-                <p>${prod.descripcion}</p>
-
-                <span class="service-price">$${prod.precio.toFixed(2)}</span>
-
-                <div class="service-controls">
-                    <button class="qty-btn minus"
-                        data-nombre="${prod.nombre}"
-                        data-precio="${prod.precio}">−</button>
-
-                    <span class="qty-display"
-                        data-nombre="${prod.nombre}">0</span>
-
-                    <button class="qty-btn plus"
-                        data-nombre="${prod.nombre}"
-                        data-precio="${prod.precio}">+</button>
+                    <button 
+                        class="btn-agregar" 
+                        onclick="agregarAlCarrito(${p.idProducto}, '${p.nombreProducto}', ${p.precio})">
+                        Agregar al carrito
+                    </button>
                 </div>
+            `;
+        });
 
-            </div>
-        `;
-    });
-
-    sincronizarServicios(); // función del carrito para que muestre cantidades correctas
+    } catch (error) {
+        console.error("Error cargando productos:", error);
+    }
 });
 </script>
 
-<script src="JS/session.js"></script>
 </body>
 </html>
-

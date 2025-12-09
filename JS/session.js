@@ -1,83 +1,66 @@
 /* ===========================================================
-   JS/session.js  (Versión Final CORREGIDA)
+   JS/session.js  (Versión Final CORREGIDA 2025)
    -----------------------------------------------------------
-   - Muestra el usuario en la barra superior.
-   - Maneja el botón de salir.
-   - Reconoce al administrador.
-   - Funciona tanto en admin.html como en el resto del sitio.
+   - Muestra usuario logueado (admin o cliente)
+   - Render dinámico del botón "Salir" + "Panel"
+   - Compatible con login.js actualizado
+   - Evita doble ejecución del DOMContentLoaded
    =========================================================== */
 
 
 /* ===========================================================
-   1) MANEJO ESPECIAL PARA admin.html
+   FUNCIÓN PRINCIPAL PARA MOSTRAR EL USUARIO EN LA WEB
    =========================================================== */
-if (window.location.pathname.includes("admin.html")) {
-
-    document.addEventListener("DOMContentLoaded", () => {
-
-        const usuario = JSON.parse(localStorage.getItem("usuario"));
-        const userArea = document.getElementById("user-area");
-
-        // Mostrar info del admin
-        if (usuario && usuario.rol === "admin" && userArea) {
-            userArea.innerHTML = `
-                <span style="color:#5E925C; font-weight:700;">Admin</span>
-                <button id="logout-btn"
-                    style="margin-left:10px;background:#ff5b5b;border:none;color:white;padding:6px 10px;border-radius:8px;cursor:pointer;">
-                    Salir
-                </button>
-            `;
-        }
-
-        // Manejo del botón de salida
-        const logoutBtn = document.getElementById("logout-btn");
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", () => {
-                localStorage.removeItem("usuario");
-                window.location.href = "login.html";
-            });
-        }
-    });
-}
-
-
-
-/* ===========================================================
-   2) MOSTRAR USUARIO EN TODAS LAS OTRAS PÁGINAS
-   =========================================================== */
-document.addEventListener("DOMContentLoaded", () => {
+function renderUserArea() {
 
     const userArea = document.getElementById("user-area");
-    if (!userArea) return;
+    if (!userArea) return;  // La página no tiene cuadro de usuario
 
     const usuario = JSON.parse(localStorage.getItem("usuario"));
-    if (!usuario) return;
+    if (!usuario) {
+        userArea.innerHTML = `
+            <a href="login.html" 
+               style="color:#5E925C; font-weight:700;">
+               Iniciar sesión
+            </a>`;
+        return;
+    }
 
-    // Usuario administrador
+    /* =======================================================
+       CASO: ADMINISTRADOR
+       ======================================================= */
     if (usuario.rol === "admin") {
 
         userArea.innerHTML = `
             <span style="color:#5E925C; font-weight:700;">Admin</span>
 
-            <a href="admin.html" 
-                style="margin-left:10px; background:#8dce88; padding:6px 10px; border-radius:8px; color:white; font-weight:700;">
+            <a href="admin.html"
+               style="margin-left:10px; background:#8dce88;
+                      padding:6px 10px; border-radius:8px;
+                      color:white; font-weight:700;">
                 Panel
             </a>
 
             <button id="logout-btn"
-                style="margin-left:10px; background:#ff5b5b; border:none; color:white; padding:6px 10px; border-radius:8px; cursor:pointer;">
+                style="margin-left:10px; background:#ff5b5b; border:none;
+                       color:white; padding:6px 10px; border-radius:8px; cursor:pointer;">
                 Salir
             </button>
         `;
+    }
 
-    } else {
-
-        // Usuario normal
+    /* =======================================================
+       CASO: CLIENTE NORMAL
+       ======================================================= */
+    else {
         userArea.innerHTML = `
-            <span style="color:#5E925C; font-weight:700;">Hola, ${usuario.nombre}</span>
+            <span style="color:#5E925C; font-weight:700;">
+                Hola, ${usuario.nombre}
+            </span>
 
             <button id="logout-btn"
-                style="margin-left:10px; background:#ff5b5b; border:none; color:white; padding:6px 10px; border-radius:8px; cursor:pointer;">
+                style="margin-left:10px; background:#ff5b5b; border:none;
+                       color:white; padding:6px 10px; border-radius:8px; cursor:pointer;">
                 Salir
             </button>
         `;
@@ -91,4 +74,31 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "login.html";
         });
     }
+}
+
+
+/* ===========================================================
+   MANEJO ESPECIAL PARA admin.html (protección)
+   =========================================================== */
+function validarAdmin() {
+
+    // Verifica si es admin y si está en admin.html
+    if (!window.location.pathname.includes("admin.html")) return;
+
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    if (!usuario || usuario.rol !== "admin") {
+        alert("Acceso denegado — Solo administradores.");
+        window.location.href = "index.html";
+        return;
+    }
+}
+
+
+/* ===========================================================
+   EJECUTAR TODO AL CARGAR LA PÁGINA
+   =========================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+    validarAdmin();
+    renderUserArea();
 });

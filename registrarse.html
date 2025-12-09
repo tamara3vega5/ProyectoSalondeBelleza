@@ -25,7 +25,8 @@
                 <li><a href="Productos.html">Productos</a></li>
                 <li><a href="citas.html">Agendar Citas</a></li>
 
-                <li class="login-icon">
+                <!-- login/session -->
+                <li class="login-icon" id="user-area">
                     <a href="login.html" aria-label="Iniciar Sesión">
                         <svg viewBox="0 0 24 24" width="26" height="26">
                             <circle cx="12" cy="7" r="4" stroke="#5E925C" stroke-width="2" fill="none"/>
@@ -46,16 +47,20 @@
             <h2>Crear Cuenta</h2>
             <p>Regístrate para poder agendar citas y comprar productos.</p>
 
-            <form id="register-form">
+            <!-- FORMULARIO CORREGIDO -->
+            <form id="registerForm">
 
                 <label class="login-label">Nombre completo</label>
-                <input type="text" id="reg-nombre" class="login-input" required placeholder="Ej: Ana Gómez">
+                <input type="text" id="nombre" class="login-input" required placeholder="Ej: Ana Gómez">
 
                 <label class="login-label">Correo electrónico</label>
-                <input type="email" id="reg-email" class="login-input" required placeholder="Ej: usuario@gmail.com">
+                <input type="email" id="correo" class="login-input" required placeholder="Ej: usuario@gmail.com">
+
+                <label class="login-label">Teléfono</label>
+                <input type="text" id="telefono" class="login-input" placeholder="Ej: 6000-0000">
 
                 <label class="login-label">Contraseña</label>
-                <input type="password" id="reg-pass" class="login-input" required placeholder="••••••••">
+                <input type="password" id="password" class="login-input" required placeholder="••••••••">
 
                 <button type="submit" class="login-btn">Registrarse</button>
 

@@ -15,7 +15,9 @@
         <a href="index.html" class="logo">Servicios</a>
 
         <input type="checkbox" id="menu">
-        <label for="menu"><img src="Imagen/menu.svg" class="menu-icono" alt=""></label>
+        <label for="menu">
+            <img src="Imagen/menu.svg" class="menu-icono" alt="">
+        </label>
 
         <nav class="navbar">
             <ul>
@@ -26,7 +28,7 @@
 
                 <!-- Carrito -->
                 <li class="cart-icon">
-                    <a href="carrito.html" aria-label="Carrito">
+                    <a href="carrito.html">
                         <svg width="26" height="26" viewBox="0 0 24 24">
                             <path d="M6 6h15l-2 9H8L6 6zm0 0H3"
                                 stroke="#5E925C" stroke-width="2" fill="none"
@@ -38,16 +40,7 @@
                     </a>
                 </li>
 
-                <!-- Login -->
-            <li class="login-icon" id="user-area">
-                <a href="login.html" aria-label="Iniciar Sesión" id="login-link">
-                    <svg viewBox="0 0 24 24" width="26" height="26">
-                        <circle cx="12" cy="7" r="4" stroke="#5E925C" stroke-width="2" fill="none"/>
-                        <path d="M4 20c0-4 4-6 8-6s8 2 8 6"
-                            stroke="#5E925C" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    </svg>
-                </a>
-            </li>
+                <li id="user-area"></li>
             </ul>
         </nav>
     </div>
@@ -63,99 +56,8 @@
 <section class="container servicios-section">
     <h2>Servicios Disponibles</h2>
 
-    <div class="service-list">
-
-        <!-- 1 -->
-        <div class="service-card">
-            <img src="Imagen/esmaltado.jpg" alt="">
-            <h3>Manicure + Esmaltado</h3>
-            <p>Incluye limpieza, forma, cutícula y esmaltado profesional.</p>
-
-            <span class="service-price">$25.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Manicure + Esmaltado" data-precio="25">−</button>
-                <span class="qty-display" data-nombre="Manicure + Esmaltado">0</span>
-                <button class="qty-btn plus" data-nombre="Manicure + Esmaltado" data-precio="25">+</button>
-            </div>
-        </div>
-
-        <!-- 2 -->
-        <div class="service-card">
-            <img src="Imagen/pedicure.jpg" alt="">
-            <h3>Pedicure Spa + Esmaltado Liso</h3>
-            <p>Servicio relajante con exfoliación, hidratación y esmaltado.</p>
-
-            <span class="service-price">$20.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Pedicure Spa + Esmaltado Liso" data-precio="20">−</button>
-                <span class="qty-display" data-nombre="Pedicure Spa + Esmaltado Liso">0</span>
-                <button class="qty-btn plus" data-nombre="Pedicure Spa + Esmaltado Liso" data-precio="20">+</button>
-            </div>
-        </div>
-
-        <!-- 3 -->
-        <div class="service-card">
-            <img src="Imagen/cortes.jpg" alt="">
-            <h3>Corte de Cabello</h3>
-            <p>Corte profesional para todo tipo de cabello.</p>
-
-            <span class="service-price">$30.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Corte de Cabello" data-precio="30">−</button>
-                <span class="qty-display" data-nombre="Corte de Cabello">0</span>
-                <button class="qty-btn plus" data-nombre="Corte de Cabello" data-precio="30">+</button>
-            </div>
-        </div>
-
-        <!-- 4 -->
-        <div class="service-card">
-            <img src="Imagen/coloracion.jpg" alt="">
-            <h3>Highlights</h3>
-            <p>Highlights que aportan luminosidad de manera sutil a tu cabello.</p>
-
-            <span class="service-price">$80.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Highlights" data-precio="80">−</button>
-                <span class="qty-display" data-nombre="Highlights">0</span>
-                <button class="qty-btn plus" data-nombre="Highlights" data-precio="80">+</button>
-            </div>
-        </div>
-
-        <!-- 5 -->
-        <div class="service-card">
-            <img src="Imagen/uñasverdes.jpg" alt="">
-            <h3>Manicure + Diseños</h3>
-            <p>Incluye limpieza, forma, cutícula y esmaltado + diseños a preferencia.</p>
-
-            <span class="service-price">$35.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Manicure + Diseños" data-precio="35">−</button>
-                <span class="qty-display" data-nombre="Manicure + Diseños">0</span>
-                <button class="qty-btn plus" data-nombre="Manicure + Diseños" data-precio="35">+</button>
-            </div>
-        </div>
-
-        <!-- 6 -->
-        <div class="service-card">
-            <img src="Imagen/facial.jpg" alt="">
-            <h3>Limpieza Facial + Hidratación</h3>
-            <p>Incluye limpieza, extracción e hidratación.</p>
-
-            <span class="service-price">$60.00</span>
-
-            <div class="service-controls">
-                <button class="qty-btn minus" data-nombre="Limpieza Facial + Hidratación" data-precio="60">−</button>
-                <span class="qty-display" data-nombre="Limpieza Facial + Hidratación">0</span>
-                <button class="qty-btn plus" data-nombre="Limpieza Facial + Hidratación" data-precio="60">+</button>
-            </div>
-        </div>
-
-    </div>
+    <!-- CONTENEDOR DINÁMICO -->
+    <div id="lista-servicios" class="service-list"></div>
 </section>
 
 
@@ -178,16 +80,6 @@
         </div>
 
         <div class="link">
-            <h3>Servicios</h3>
-            <ul>
-                <li><a href="#">Manicure</a></li>
-                <li><a href="#">Pedicure</a></li>
-                <li><a href="#">Tintes</a></li>
-                <li><a href="#">Faciales</a></li>
-            </ul>
-        </div>
-
-        <div class="link">
             <h3>Sucursal</h3>
             <ul>
                 <li><a href="#">San Francisco</a></li>
@@ -196,7 +88,52 @@
     </div>
 </footer>
 
+<!-- Scripts -->
 <script src="JS/carrito.js"></script>
 <script src="JS/session.js"></script>
+
+<script>
+/* ===========================================
+   Cargar servicios desde API
+=========================================== */
+
+const API_SERVICIOS = "https://localhost:7024/api/Servicios";
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const contenedor = document.getElementById("lista-servicios");
+
+    try {
+        const res = await fetch(API_SERVICIOS);
+        const servicios = await res.json();
+
+        contenedor.innerHTML = "";
+
+        servicios.forEach(s => {
+            contenedor.innerHTML += `
+                <div class="service-card">
+
+                    <img src="Imagen/${s.nombreServicio.replace(/\s+/g,'')}.jpg" alt="${s.nombreServicio}">
+
+                    <h3>${s.nombreServicio}</h3>
+
+                    <p>${s.descripcion || "Servicio profesional disponible."}</p>
+
+                    <span class="service-price">$${s.precio}</span>
+
+                    <button 
+                        onclick="agregarAlCarrito(${s.idServicio}, '${s.nombreServicio}', ${s.precio})"
+                        class="btn-agregar">
+                        Agregar al carrito
+                    </button>
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        console.error("Error cargando servicios:", error);
+    }
+});
+</script>
+
 </body>
 </html>

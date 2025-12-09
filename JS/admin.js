@@ -1,6 +1,6 @@
 /* ============================================================
    ADMIN.JS – SISTEMA ADMINISTRATIVO COMPLETO MATCHASALON
-   Totalmente conectado al backend (API REST .NET)
+   Conectado al backend .NET (DTOs finales)
 ============================================================ */
 
 /* ===========================
@@ -18,6 +18,7 @@ const API_CITAS      = "https://localhost:7024/api/Citas";
 document.addEventListener("DOMContentLoaded", () => {
 
     const usuario = JSON.parse(localStorage.getItem("usuario"));
+
     if (!usuario || usuario.rol !== "admin") {
         alert("Acceso no autorizado.");
         window.location.href = "index.html";
@@ -186,18 +187,6 @@ document.getElementById("btn-save-estilista").addEventListener("click", async ()
     }
 });
 
-async function eliminarEstilista(id) {
-    if (!confirm("¿Eliminar este estilista?")) return;
-
-    try {
-        await fetch(`${API_ESTILISTAS}/${id}`, { method: "DELETE" });
-        cargarEstilistas();
-        actualizarDashboard();
-    } catch (e) {
-        console.error("Error eliminando estilista:", e);
-    }
-}
-
 /* ============================================================
    CRUD SERVICIOS
 ============================================================ */
@@ -264,18 +253,6 @@ document.getElementById("btn-save-servicio").addEventListener("click", async () 
     }
 });
 
-async function eliminarServicio(id) {
-    if (!confirm("¿Eliminar servicio?")) return;
-
-    try {
-        await fetch(`${API_SERVICIOS}/${id}`, { method: "DELETE" });
-        cargarServicios();
-        actualizarDashboard();
-    } catch (e) {
-        console.error("Error eliminando servicio:", e);
-    }
-}
-
 /* ============================================================
    CRUD PRODUCTOS
 ============================================================ */
@@ -320,7 +297,7 @@ document.getElementById("btn-save-producto").addEventListener("click", async () 
         nombreProducto: nombre,
         descripcion: desc,
         precio: precio,
-        stock: 20, 
+        stock: 20,
         imagen: imagen
     };
 
@@ -340,21 +317,9 @@ document.getElementById("btn-save-producto").addEventListener("click", async () 
         document.getElementById("prod-imagen").value = "";
 
     } catch (e) {
-        console.error("Error creando product:", e);
+        console.error("Error creando producto:", e);
     }
 });
-
-async function eliminarProducto(id) {
-    if (!confirm("¿Eliminar producto?")) return;
-
-    try {
-        await fetch(`${API_PRODUCTOS}/${id}`, { method: "DELETE" });
-        cargarProductos();
-        actualizarDashboard();
-    } catch (e) {
-        console.error("Error eliminando producto:", e);
-    }
-}
 
 /* ============================================================
    CRUD RESERVAS (CITAS)
@@ -372,9 +337,9 @@ async function cargarReservas() {
 
             tbody.innerHTML += `
                 <tr>
-                    <td>${r.cliente?.nombre || "N/A"}</td>
-                    <td>${r.servicio?.nombreServicio || "N/A"}</td>
-                    <td>${r.estilista?.nombre || "N/A"}</td>
+                    <td>${r.cliente || "N/A"}</td>
+                    <td>${r.servicio || "N/A"}</td>
+                    <td>${r.estilista || "N/A"}</td>
                     <td>${new Date(r.fecha).toLocaleString()}</td>
                     <td>${r.estado}</td>
                     <td>
@@ -421,3 +386,4 @@ async function cambiarEstado(id) {
         console.error("Error cambiando estado:", e);
     }
 }
+

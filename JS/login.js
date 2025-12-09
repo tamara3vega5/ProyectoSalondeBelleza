@@ -1,12 +1,17 @@
-const API = "https://localhost:7024/api/Auth/login";
+/* ============================================================
+   LOGIN.JS – AUTENTICACIÓN MATCHASALON
+   Conectado a API/Auth/login (DTO: LoginDto & LoginResponseDto)
+============================================================ */
 
-// ---------------------------
-// CAPTURAR BOTÓN DE LOGIN
-// ---------------------------
+const API_LOGIN = "https://localhost:7024/api/Auth/login";
+
+// ------------------------------------------------------------
+// EVENTO SUBMIT DEL FORMULARIO
+// ------------------------------------------------------------
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const correo = document.getElementById("correo").value.trim();
+    const correo = document.getElementById("correo").value.trim().toLowerCase();
     const password = document.getElementById("password").value.trim();
 
     if (!correo || !password) {
@@ -15,34 +20,41 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     }
 
     try {
-        const res = await fetch(API, {
+        // ------------------------------------------------------------
+        // PETICIÓN AL BACKEND
+        // ------------------------------------------------------------
+        const res = await fetch(API_LOGIN, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ correo, password })
         });
 
+        const data = await res.json();
+
         if (!res.ok) {
-            alert("Correo o contraseña incorrectos.");
+            alert(data.mensaje || "Credenciales incorrectas");
             return;
         }
 
-        const data = await res.json();
         const cliente = data.cliente;
 
-        // ---------------------------
+        // ------------------------------------------------------------
         // GUARDAR SESIÓN EN LOCALSTORAGE
-        // ---------------------------
-        localStorage.setItem("usuario", JSON.stringify({
+        // ------------------------------------------------------------
+        const usuarioSesion = {
             idCliente: cliente.idCliente,
             nombre: cliente.nombre,
             correo: cliente.correo,
-            rol: cliente.rol || "cliente"
-        }));
+            telefono: cliente.telefono,
+            rol: cliente.rol || "cliente" // asegura que tenga rol
+        };
 
-        // ---------------------------
-        // REDIRECCIONAR SEGÚN ROL
-        // ---------------------------
-        if (cliente.rol === "admin") {
+        localStorage.setItem("usuario", JSON.stringify(usuarioSesion));
+
+        // ------------------------------------------------------------
+        // REDIRECCIONAR POR ROL
+        // ------------------------------------------------------------
+        if (usuarioSesion.rol === "admin") {
             window.location.href = "admin.html";
         } else {
             window.location.href = "index.html";
@@ -50,6 +62,6 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
     } catch (error) {
         console.error("Error en login:", error);
-        alert("Error al conectar con el servidor.");
+        alert("Error conectando con el servidor. Intenta más tarde.");
     }
 });

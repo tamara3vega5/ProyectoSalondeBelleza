@@ -1,13 +1,13 @@
 /* ============================================================
       historialCompras.js – Panel Admin de Compras MatchaSalon
-      Conexión 100% real a la API .NET
+      Conexión REAL y 100% compatible con API .NET
 ============================================================ */
 
 const API_VENTAS = "https://localhost:7024/api/Ventas";
 const API_DETALLE = "https://localhost:7024/api/DetalleVenta";
 
 /* ============================================================
-      1) Cargar compras al iniciar sección
+      1) Cargar compras al abrir la sección
 ============================================================ */
 async function cargarCompras() {
     const tbody = document.getElementById("compras-body");
@@ -15,20 +15,23 @@ async function cargarCompras() {
 
     try {
         const res = await fetch(API_VENTAS);
-        const ventas = await res.json();
+        if (!res.ok) throw new Error("Error obteniendo ventas");
 
+        const ventas = await res.json();
         tbody.innerHTML = "";
 
         ventas.forEach(v => {
-            const fecha = new Date(v.fecha).toLocaleString();
-
             tbody.innerHTML += `
                 <tr>
                     <td>${v.idVenta}</td>
                     <td>${v.cliente?.nombre || "N/A"}</td>
-                    <td>${fecha}</td>
-                    <td>$${v.total}</td>
-                    <td><button class="btn-primary" onclick="verDetalleCompra(${v.idVenta})">🔍 Ver</button></td>
+                    <td>${new Date(v.fecha).toLocaleString()}</td>
+                    <td>$${v.total.toFixed(2)}</td>
+                    <td>
+                        <button class="btn-primary" onclick="verDetalleCompra(${v.idVenta})">
+                            🔍 Ver
+                        </button>
+                    </td>
                 </tr>
             `;
         });
@@ -39,7 +42,7 @@ async function cargarCompras() {
 }
 
 /* ============================================================
-      2) Ver detalle de una compra
+      2) Ver detalle de una compra por ID
 ============================================================ */
 async function verDetalleCompra(idVenta) {
     const contenedor = document.getElementById("detalle-compra");
@@ -49,17 +52,18 @@ async function verDetalleCompra(idVenta) {
 
     try {
         const res = await fetch(`${API_DETALLE}/venta/${idVenta}`);
-        const detalle = await res.json();
+        if (!res.ok) throw new Error("Error obteniendo detalle");
 
+        const detalle = await res.json();
         tbody.innerHTML = "";
 
         detalle.forEach(d => {
             tbody.innerHTML += `
                 <tr>
                     <td>${d.producto?.nombreProducto || "N/A"}</td>
-                    <td>$${d.producto?.precio || 0}</td>
+                    <td>$${d.producto?.precio.toFixed(2) || 0}</td>
                     <td>${d.cantidad}</td>
-                    <td>$${d.subtotal}</td>
+                    <td>$${d.subtotal.toFixed(2)}</td>
                 </tr>
             `;
         });
@@ -72,22 +76,20 @@ async function verDetalleCompra(idVenta) {
 }
 
 /* ============================================================
-      3) Cerrar detalle
+      3) Cerrar ventana de detalle
 ============================================================ */
 document.getElementById("cerrar-detalle")?.addEventListener("click", () => {
     document.getElementById("detalle-compra").style.display = "none";
 });
 
 /* ============================================================
-      4) Inicializar cuando se abra sección Compras
+      4) Ejecutar cuando admin abre la sección Compras
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
+    const botonCompras = document.querySelector('li[data-section="compras"]');
 
-    // Detectar si admin navegó a la sección "Compras"
-    const comprasBtn = document.querySelector('li[data-section="compras"]');
-
-    if (comprasBtn) {
-        comprasBtn.addEventListener("click", () => {
+    if (botonCompras) {
+        botonCompras.addEventListener("click", () => {
             cargarCompras();
         });
     }

@@ -1,8 +1,8 @@
 const API_CLIENTES = "https://localhost:7024/api/Clientes";
 
-// -------------------------------------------
-// FUNCIÓN PARA REGISTRO
-// -------------------------------------------
+/* ===========================================================
+   REGISTRO DE NUEVO CLIENTE
+   =========================================================== */
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -16,13 +16,12 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
         return;
     }
 
-    // Objeto que coincide EXACTAMENTE con ClienteCreateDto.cs
+    // OBJETO EXACTO PARA ClienteCreateDto (tu backend)
     const nuevoCliente = {
         nombre: nombre,
         correo: correo,
         telefono: telefono,
-        password: password,
-        fechaRegistro: new Date().toISOString()
+        password: password   // El backend genera el hash
     };
 
     try {
@@ -32,14 +31,25 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
             body: JSON.stringify(nuevoCliente)
         });
 
+        // -------------------------------
+        // ERRORES DEL BACKEND (correo duplicado, etc.)
+        // -------------------------------
         if (!res.ok) {
-            alert("No se pudo registrar el cliente.");
+            const errorData = await res.json().catch(() => null);
+
+            if (errorData?.mensaje) {
+                alert(errorData.mensaje); // Mensaje del backend
+            } else {
+                alert("No se pudo registrar el cliente.");
+            }
             return;
         }
 
         const cliente = await res.json();
 
-        // Guardar sesión automáticamente
+        // -------------------------------
+        // GUARDAR SESIÓN AUTOMÁTICAMENTE
+        // -------------------------------
         localStorage.setItem("usuario", JSON.stringify({
             idCliente: cliente.idCliente,
             nombre: cliente.nombre,

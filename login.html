@@ -1,135 +1,120 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - MatchaSalon</title>
-    <link rel="stylesheet" href="CSS/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar Sesión - MatchaSalon</title>
+  <link rel="stylesheet" href="CSS/style.css"/>
 </head>
-
 <body>
 
 <header class="header">
-    <img class="bg" src="Imagen/bg.svg" alt="">
+  <img class="bg" src="Imagen/bg.svg" alt=""/>
 
-    <div class="menu container">
-        <a href="index.html" class="logo">MatchaSalon</a>
+  <div class="menu container">
+    <a href="index.html" class="logo">MatchaSalon</a>
 
-        <input type="checkbox" id="menu">
-        <label for="menu"><img src="Imagen/menu.svg" class="menu-icono" alt=""></label>
+    <input type="checkbox" id="menu"/>
+    <label for="menu"><img src="Imagen/menu.svg" class="menu-icono" alt=""/></label>
 
-        <nav class="navbar">
-            <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="Servicios.html">Servicios</a></li>
-                <li><a href="Productos.html">Productos</a></li>
-                <li><a href="citas.html">Agendar Citas</a></li>
-                <!-- Ícono del carrito -->
-                <li class="cart-icon">
-                    <a href="carrito.html" aria-label="Carrito">
-                        <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M6 6h15l-2 9H8L6 6zm0 0H3"
-                                stroke="#5E925C" stroke-width="2" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="10" cy="19" r="1" fill="#5E925C"/>
-                            <circle cx="17" cy="19" r="1" fill="#5E925C"/>
-                        </svg>
+    <nav class="navbar">
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="Servicios.html">Servicios</a></li>
+        <li><a href="Productos.html">Productos</a></li>
+        <li><a href="citas.html">Agendar Citas</a></li>
 
-                        <!-- Contador -->
-                        <span id="cart-count">0</span>
-                    </a>
-                </li>
+        <!-- Carrito -->
+        <li class="cart-icon">
+          <a href="carrito.html" aria-label="Carrito">
+            <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6h15l-2 9H8L6 6zm0 0H3" stroke="#5E925C" stroke-width="2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="10" cy="19" r="1" fill="#5E925C"/>
+              <circle cx="17" cy="19" r="1" fill="#5E925C"/>
+            </svg>
+            <span id="cart-count">0</span>
+          </a>
+        </li>
 
-                <!-- Ícono Login -->
-                <li class="login-icon" id="user-area">
-                    <a href="login.html" aria-label="Iniciar Sesión" id="login-link">
-                        <svg viewBox="0 0 24 24" width="26" height="26">
-                            <circle cx="12" cy="7" r="4" stroke="#5E925C" stroke-width="2" fill="none"/>
-                            <path d="M4 20c0-4 4-6 8-6s8 2 8 6"
-                                stroke="#5E925C" stroke-width="2" fill="none" stroke-linecap="round"/>
-                        </svg>
-                    </a>
-                </li>
-
-            </ul>
-        </nav>
-    </div>
+        <!-- Área de usuario (lo gestiona session.js) -->
+        <li class="login-icon" id="user-area">
+          <a href="login.html" aria-label="Iniciar Sesión" id="login-link">
+            <svg viewBox="0 0 24 24" width="26" height="26">
+              <circle cx="12" cy="7" r="4" stroke="#5E925C" stroke-width="2" fill="none"/>
+              <path d="M4 20c0-4 4-6 8-6s8 2 8 6"
+                stroke="#5E925C" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </header>
 
-
 <main class="login-main">
+  <section class="login-section">
+    <div class="login-card">
+      <h2>Iniciar Sesión</h2>
+      <p>Accede para gestionar tus citas y compras.</p>
 
-    <section class="login-section">
-        <div class="login-card">
+      <!-- IDs alineados con JS/login.js -->
+      <form id="loginForm">
+        <label for="correo" class="login-label">Correo electrónico</label>
+        <input id="correo" type="email" class="login-input" required placeholder="Ej: usuario@gmail.com"/>
 
-            <h2>Iniciar Sesión</h2>
-            <p>Accede para gestionar tus citas y preferencias.</p>
+        <label for="password" class="login-label">Contraseña</label>
+        <input id="password" type="password" class="login-input" required placeholder="••••••••"/>
 
-            <form id="login-form">
-                
-                <label class="login-label">Correo electrónico</label>
-                <input type="email" class="login-input" required placeholder="Ej: usuario@gmail.com">
+        <button type="submit" class="login-btn">Entrar</button>
 
-                <label class="login-label">Contraseña</label>
-                <input type="password" class="login-input" required placeholder="••••••••">
+        <p class="login-forgot"><a href="#">¿Olvidaste tu contraseña?</a></p>
+        <p class="login-register"><a href="registrarse.html">¿No tienes cuenta? Regístrate aquí</a></p>
+      </form>
 
-                <button type="submit" class="login-btn">Entrar</button>
-
-                <p class="login-forgot">
-                    <a href="#">¿Olvidaste tu contraseña?</a>
-                </p>
-
-                <p class="login-register">
-                    <a href="registrarse.html">¿No tienes cuenta? Regístrate aquí</a>
-                </p>
-
-
-            </form>
-
-        </div>
-    </section>
-
+      <!-- Mensaje de error opcional -->
+      <p id="login-error" style="display:none;color:#c0392b;margin-top:10px;"></p>
+    </div>
+  </section>
 </main>
 
-
 <footer class="footer container">
-        <div class="footer-links">
-            <div class="link">
-                <h3>Contactos</h3>
-                <div class="socials">
-                    <img src="Imagen/s1.svg" alt="">
-                    <img src="Imagen/s3.svg" alt="">
-                </div>
-            </div>
-             <div class="link">
-                <h3>Redes sociales</h3>
-                <ul>
-                    <li><a href="#">Instragram| @Matcha_Salon</a></li>
-                    <li><a href="#">Correo | matchasalon@gmail.com </a></li>
-                </ul>
-            </div>
-             <div class="link">
-                <h3>Servicios</h3>
-                <ul>
-                    <li><a href="#">Manicure</a></li>
-                    <li><a href="#">Pedicure</a></li>
-                    <li><a href="#">Tintes</a></li>
-                    <li><a href="#">Faciales</a></li>
-                </ul>
-            </div>
-             <div class="link">
-                <h3>Sucursales</h3>
-                <ul>
-                    <li><a href="#">San Francisco| 7am a 5pm</a></li>
-                </ul>
-            </div>
-        </div>
-    </footer>
+  <div class="footer-links">
+    <div class="link">
+      <h3>Contactos</h3>
+      <div class="socials">
+        <img src="Imagen/s1.svg" alt=""/>
+        <img src="Imagen/s3.svg" alt=""/>
+      </div>
+    </div>
+    <div class="link">
+      <h3>Redes sociales</h3>
+      <ul>
+        <li><a href="#">Instagram | @Matcha_Salon</a></li>
+        <li><a href="#">Correo | matchasalon@gmail.com</a></li>
+      </ul>
+    </div>
+    <div class="link">
+      <h3>Servicios</h3>
+      <ul>
+        <li><a href="#">Manicure</a></li>
+        <li><a href="#">Pedicure</a></li>
+        <li><a href="#">Tintes</a></li>
+        <li><a href="#">Faciales</a></li>
+      </ul>
+    </div>
+    <div class="link">
+      <h3>Sucursales</h3>
+      <ul>
+        <li><a href="#">San Francisco | 7am a 5pm</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
 
+<!-- Scripts -->
 <script src="JS/initAdmin.js"></script>
 <script src="JS/login.js"></script>
-
-
 <script src="JS/session.js"></script>
 </body>
 </html>
