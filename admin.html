@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo – MatchaSalon</title>
+
+    <link rel="stylesheet" href="CSS/style.css" />
+</head>
+
+<body>
+
+<!-- FONDO MATCHA COMO EL INDEX -->
+<header class="header">
+    <img class="bg" src="Imagen/bg.svg" alt="">
+    <img class="esp" src="Imagen/Maatcha.png" alt="">
+</header>
+
+<!-- CONTENEDOR ADMIN (sidebar + contenido) -->
+<div class="admin-body">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <h2 class="sidebar-title">MatchaSalon</h2>
+
+        <ul class="sidebar-menu">
+            <li data-section="dashboard" class="active">📊 Dashboard</li>
+            <li data-section="usuarios">👥 Usuarios</li>
+            <li data-section="estilistas">💇 Estilistas</li>
+            <li data-section="servicios">💅 Servicios</li>
+            <li data-section="productos">🛍 Productos</li>
+            <li data-section="reservas">📋 Reservas</li>
+        </ul>
+
+        <button id="logout-btn" class="logout-btn">Salir</button>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="admin-main">
+
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="admin-section active">
+            <h1>Dashboard</h1>
+            <div class="dashboard-cards">
+                <div class="dash-card">
+                    <h3>Total Usuarios</h3>
+                    <p id="count-usuarios">0</p>
+                </div>
+                <div class="dash-card">
+                    <h3>Servicios</h3>
+                    <p id="count-servicios">0</p>
+                </div>
+                <div class="dash-card">
+                    <h3>Productos</h3>
+                    <p id="count-productos">0</p>
+                </div>
+                <div class="dash-card">
+                    <h3>Reservas</h3>
+                    <p id="count-reservas">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CRUD USUARIOS -->
+        <section id="usuarios" class="admin-section">
+            <h1>Gestión de Usuarios</h1>
+
+            <button class="btn-primary" id="btn-add-user">+ Añadir usuario</button>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="usuarios-body"></tbody>
+            </table>
+        </section>
+
+        <!-- CRUD ESTILISTAS (NUEVO) -->
+        <section id="estilistas" class="admin-section">
+            <h1>Gestión de Estilistas</h1>
+
+            <!-- FORMULARIO AÑADIR ESTILISTA -->
+            <div id="form-add-estilista" style="margin-bottom:20px;">
+                <h3>Agregar Estilista</h3>
+
+                <input type="text" id="est-nombre" placeholder="Nombre" class="input-admin">
+                <input type="text" id="est-especialidad" placeholder="Especialidad" class="input-admin">
+                <input type="text" id="est-telefono" placeholder="Teléfono" class="input-admin">
+                <input type="email" id="est-correo" placeholder="Correo" class="input-admin">
+
+                <button class="btn-primary" id="btn-save-estilista">Guardar Estilista</button>
+            </div>
+
+            <h1>Estilistas</h1>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Especialidad</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="estilistas-body"></tbody>
+            </table>
+        </section>
+
+        <!-- CRUD SERVICIOS -->
+        <section id="servicios" class="admin-section">
+            <h1>Gestión de Servicios</h1>
+
+            <!-- FORMULARIO AÑADIR SERVICIO -->
+            <div id="form-add-servicio" style="margin-bottom:20px;">
+                <h3>Agregar Servicio</h3>
+
+                <input type="text" id="serv-nombre" placeholder="Nombre del servicio" class="input-admin">
+                <input type="number" id="serv-duracion" placeholder="Duración (minutos)" class="input-admin">
+                <input type="number" id="serv-precio" placeholder="Precio" class="input-admin">
+
+                <button class="btn-primary" id="btn-save-servicio">Guardar Servicio</button>
+            </div>
+
+            <!-- FORMULARIO EDITAR SERVICIO -->
+            <div id="form-edit-servicio" style="margin-bottom:20px; display:none;">
+                <h3>Editar Servicio</h3>
+
+                <input type="hidden" id="edit-serv-id">
+
+                <input type="text" id="edit-serv-nombre" placeholder="Nombre del servicio" class="input-admin">
+                <input type="number" id="edit-serv-duracion" placeholder="Duración" class="input-admin">
+                <input type="number" id="edit-serv-precio" placeholder="Precio" class="input-admin">
+
+                <button class="btn-primary" id="btn-update-servicio">Actualizar Servicio</button>
+                <button class="btn-cancelar" id="btn-cancel-serv-edit">Cancelar</button>
+            </div>
+
+            <h1>Servicios</h1>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Servicio</th>
+                        <th>Duración</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="servicios-body"></tbody>
+            </table>
+        </section>
+
+        <!-- CRUD PRODUCTOS -->
+        <section id="productos" class="admin-section">
+
+            <h1>Gestión de Productos</h1>
+
+            <!-- FORMULARIO PARA AGREGAR PRODUCTOS -->
+            <div id="form-add-producto" style="margin-bottom:20px;">
+                <h3>Agregar Producto</h3>
+
+                <input type="text" id="prod-nombre" placeholder="Nombre" class="input-admin">
+                <input type="text" id="prod-desc" placeholder="Descripción" class="input-admin">
+                <input type="number" id="prod-precio" placeholder="Precio" class="input-admin">
+                <input type="text" id="prod-imagen" placeholder="URL de imagen (Imagen/archivo.jpg)" class="input-admin">
+
+                <button class="btn-primary" id="btn-save-producto">Guardar Producto</button>
+            </div>
+
+            <!-- FORMULARIO EDITAR PRODUCTO -->
+            <div id="form-edit-producto" style="margin-bottom:20px; display:none;">
+                <h3>Editar Producto</h3>
+
+                <input type="hidden" id="edit-prod-id">
+
+                <input type="text" id="edit-prod-nombre" placeholder="Nombre" class="input-admin">
+                <input type="text" id="edit-prod-desc" placeholder="Descripción" class="input-admin">
+                <input type="number" id="edit-prod-precio" placeholder="Precio" class="input-admin">
+                <input type="text" id="edit-prod-imagen" placeholder="URL de imagen" class="input-admin">
+
+                <button class="btn-primary" id="btn-update-producto">Actualizar Producto</button>
+                <button class="btn-cancelar" id="btn-cancel-edit">Cancelar</button>
+            </div>
+
+            <h1>Productos</h1>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="productos-body"></tbody>
+            </table>
+
+        </section>
+
+        <!-- CRUD RESERVAS -->
+        <section id="reservas" class="admin-section">
+            <h1>Reservas</h1>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Servicio</th>
+                        <th>Estilista</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="reservas-body"></tbody>
+            </table>
+        </section>
+
+    </main>
+
+</div>
+
+<!-- SCRIPTS -->
+<script src="JS/initAdmin.js"></script>
+<script src="JS/session.js"></script>
+<script src="JS/admin.js"></script>
+
+</body>
+</html>

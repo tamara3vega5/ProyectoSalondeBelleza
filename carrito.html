@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito - MatchaSalon</title>
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <img class="bg" src="Imagen/bg.svg" alt="">
+
+    <div class="menu container">
+        <a href="index.html" class="logo">MatchaSalon</a>
+
+        <input type="checkbox" id="menu">
+        <label for="menu"><img src="Imagen/menu.svg" class="menu-icono" alt=""></label>
+
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="Servicios.html">Servicios</a></li>
+                <li><a href="Productos.html">Productos</a></li>
+                <li><a href="citas.html">Agendar Citas</a></li>
+
+                <!-- Carrito -->
+                <li class="cart-icon">
+                    <a href="carrito.html" aria-label="Carrito">
+                        <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6 6h15l-2 9H8L6 6zm0 0H3"
+                                stroke="#5E925C" stroke-width="2" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="10" cy="19" r="1" fill="#5E925C"/>
+                            <circle cx="17" cy="19" r="1" fill="#5E925C"/>
+                        </svg>
+                        <span id="cart-count">0</span>
+                    </a>
+                </li>
+
+                <!-- Login -->
+                <li class="login-icon" id="user-area">
+                    <a href="login.html" aria-label="Iniciar Sesión" id="login-link">
+                        <svg viewBox="0 0 24 24" width="26" height="26">
+                            <circle cx="12" cy="7" r="4" stroke="#5E925C" stroke-width="2" fill="none"/>
+                            <path d="M4 20c0-4 4-6 8-6s8 2 8 6"
+                                stroke="#5E925C" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+    </div>
+</header>
+
+
+<!-- CONTENIDO DEL CARRITO -->
+<main class="container" style="padding: 120px 0;">
+
+    <h1 style="text-align:center; margin-bottom:30px;">Tu Carrito</h1>
+
+    <div id="cart-container" class="cart-container">
+
+        <!-- 🔥 Aquí JS insertará los ítems -->
+        <div id="cart-items"></div>
+
+    </div>
+
+    <div class="cart-summary">
+        <h2>Total: <span id="cart-total">$0.00</span></h2>
+        <button id="clear-cart" class="login-btn" style="margin-top:10px;">Vaciar Carrito</button>
+    </div>
+
+</main>
+
+
+<footer class="footer container">
+    <div class="footer-links">
+        <div class="link">
+            <h3>Contactos</h3>
+            <div class="socials">
+                <img src="Imagen/s1.svg" alt="">
+                <img src="Imagen/s3.svg" alt="">
+            </div>
+        </div>
+         <div class="link">
+            <h3>Redes sociales</h3>
+            <ul>
+                <li><a href="#">Instagram | @Matcha_Salon</a></li>
+                <li><a href="#">Correo | matchasalon@gmail.com </a></li>
+            </ul>
+        </div>
+         <div class="link">
+            <h3>Servicios</h3>
+            <ul>
+                <li><a href="#">Manicure</a></li>
+                <li><a href="#">Pedicure</a></li>
+                <li><a href="#">Tintes</a></li>
+                <li><a href="#">Faciales</a></li>
+            </ul>
+        </div>
+         <div class="link">
+            <h3>Sucursales</h3>
+            <ul>
+                <li><a href="#">San Francisco | 7am a 5pm</a></li>
+                <li><a href="#">Santa Maria | 7am a 5pm</a></li>
+                <li><a href="#">Via España | 7am a 5pm</a></li>
+                <li><a href="#">Telefono | 300-000</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+
+<script src="JS/carrito.js"></script>
+<script src="JS/session.js"></script>
+</body>
+</html>

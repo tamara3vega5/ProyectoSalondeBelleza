@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - MatchaSalon</title>
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <img class="bg" src="Imagen/bg.svg" alt="">
+
+    <div class="menu container">
+        <a href="index.html" class="logo">MatchaSalon</a>
+
+        <input type="checkbox" id="menu">
+        <label for="menu"><img src="Imagen/menu.svg" class="menu-icono" alt=""></label>
+
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="Servicios.html">Servicios</a></li>
+                <li><a href="Productos.html">Productos</a></li>
+                <li><a href="citas.html">Agendar Citas</a></li>
+
+                <li class="login-icon">
+                    <a href="login.html" aria-label="Iniciar Sesión">
+                        <svg viewBox="0 0 24 24" width="26" height="26">
+                            <circle cx="12" cy="7" r="4" stroke="#5E925C" stroke-width="2" fill="none"/>
+                            <path d="M4 20c0-4 4-6 8-6s8 2 8 6"
+                                stroke="#5E925C" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main class="login-main">
+    <section class="login-section">
+        <div class="login-card">
+
+            <h2>Crear Cuenta</h2>
+            <p>Regístrate para poder agendar citas y comprar productos.</p>
+
+            <form id="register-form">
+
+                <label class="login-label">Nombre completo</label>
+                <input type="text" id="reg-nombre" class="login-input" required placeholder="Ej: Ana Gómez">
+
+                <label class="login-label">Correo electrónico</label>
+                <input type="email" id="reg-email" class="login-input" required placeholder="Ej: usuario@gmail.com">
+
+                <label class="login-label">Contraseña</label>
+                <input type="password" id="reg-pass" class="login-input" required placeholder="••••••••">
+
+                <button type="submit" class="login-btn">Registrarse</button>
+
+                <p class="login-forgot">
+                    <a href="login.html">¿Ya tienes cuenta? Inicia sesión</a>
+                </p>
+
+            </form>
+
+        </div>
+    </section>
+</main>
+
+<script src="JS/session.js"></script>
+<script src="JS/registrarse.js"></script>
+<script src="JS/carrito.js"></script>
+
+</body>
+</html>

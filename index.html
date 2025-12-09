@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatchaSalon</title>
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <img class="bg" src="Imagen/bg.svg" alt="">
+    <img class="esp" src="Imagen/Maatcha.png" alt="">
+
+    <div class="menu container">
+        <a href="index.html" class="logo">MatchaSalon</a>
+
+        <input type="checkbox" id="menu">
+        <label for="menu"><img src="Imagen/menu.svg" class="menu-icono" alt=""></label>
+
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="Servicios.html">Servicios</a></li>
+                <li><a href="Productos.html">Productos</a></li>
+                <li><a href="citas.html">Agendar Citas</a></li>
+                <!-- Ícono del carrito -->
+                <li class="cart-icon">
+                    <a href="carrito.html" aria-label="Carrito">
+                        <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6 6h15l-2 9H8L6 6zm0 0H3"
+                                stroke="#5E925C" stroke-width="2" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="10" cy="19" r="1" fill="#5E925C"/>
+                            <circle cx="17" cy="19" r="1" fill="#5E925C"/>
+                        </svg>
+
+                        <!-- Contador -->
+                        <span id="cart-count">0</span>
+                    </a>
+                </li>
+                <li class="login-icon" id="user-area">
+                    <a href="login.html" aria-label="Iniciar Sesión" id="login-link">
+                        <svg viewBox="0 0 24 24" width="26" height="26">
+                            <circle cx="12" cy="7" r="4" stroke="#5E925C" stroke-width="2" fill="none"/>
+                            <path d="M4 20c0-4 4-6 8-6s8 2 8 6"
+                                stroke="#5E925C" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="header-content container">
+        <div class="header-info">
+
+            <div class="header-txt">
+                <h1>Tu estilo, tu matcha, tu salón</h1>
+                <p>
+                    En MatchaSalon fusionamos belleza y bienestar en un solo espacio.
+                    Servicios profesionales de uñas, pedicure, cabello y más.
+                    Te acompañamos con una taza de matcha para una experiencia relajante.
+                </p>
+                
+                <a href="Servicios.html" class="btn-1">Ver Servicios</a>
+            </div>
+
+            <div class="header-img">
+                <img src="Imagen/fondosupe.jpg" alt="">
+            </div>
+
+        </div>
+    </div>
+</header>
+
+
+
+<section class="info container">
+    <div class="info-1">
+        <img src="Imagen/time.svg" alt="">
+        <h3>Horario</h3>
+        <p>Lunes a Viernes 7am a 5pm</p>
+        <p>Sábados y Domingos 9am a 3pm</p>
+    </div>
+
+    <div class="info-1">
+        <img src="Imagen/gps.svg" alt="">
+        <h3>Ubicación</h3>
+        <p>San Francisco</p>
+    </div>
+
+    <div class="info-1">
+        <img src="Imagen/phone.svg" alt="">
+        <h3>Teléfono</h3>
+        <p>300-000</p>
+    </div>
+</section>
+
+
+
+<section class="nosotros">
+    <img class="bg-2" src="Imagen/bg.svg" alt="">
+
+    <div class="nosotros-info container">
+        <div class="nosotros-img">
+            <img src="Imagen/coloracion.jpg" alt="">
+        </div>
+
+        <div class="nosotros-txt">
+            <span>Servicios destacados</span>
+            <h2>Highlights</h2>
+
+            <p>
+                Highlights que aportan luminosidad sutil al cabello.  
+                Duración: 80 minutos · Precio: $80.00  
+                Servicio aplicado por nuestros estilistas expertos.
+            </p>
+
+            <a href="Servicios.html" class="btn-1">Ver Más</a>
+        </div>
+    </div>
+</section>
+
+
+<main class="products container">
+
+<section class="productosIndex">
+    <h1>Productos</h1>
+    <p>
+        Productos seleccionados para nutrir y cuidar tu cabello usando fórmulas profesionales.
+    </p>
+</section>
+
+<div class="service-list"><!-- MISMA CLASE DE SERVICIOS PARA MISMO DISEÑO -->
+
+    <!-- PRODUCTO 1 -->
+    <div class="service-card">
+        <img src="Imagen/shampooHerbal.jpg" alt="">
+        <h3>Shampoo Herbal Fresh 500ml</h3>
+        <p>Shampoo natural para todo tipo de cabello.</p>
+
+        <span class="service-price">$8.99</span>
+
+        <div class="service-controls">
+            <button class="qty-btn minus"
+                data-nombre="Shampoo Herbal Fresh"
+                data-precio="8.99">−</button>
+
+            <span class="qty-display"
+                data-nombre="Shampoo Herbal Fresh">0</span>
+
+            <button class="qty-btn plus"
+                data-nombre="Shampoo Herbal Fresh"
+                data-precio="8.99">+</button>
+        </div>
+    </div>
+
+
+    <!-- PRODUCTO 2 -->
+    <div class="service-card">
+        <img src="Imagen/acondicionadorNutrisoft.jpg" alt="">
+        <h3>Acondicionador NutriSoft 300ml</h3>
+        <p>Acondicionador hidratante con vitaminas.</p>
+
+        <span class="service-price">$6.49</span>
+
+        <div class="service-controls">
+            <button class="qty-btn minus"
+                data-nombre="Acondicionador NutriSoft"
+                data-precio="6.49">−</button>
+
+            <span class="qty-display"
+                data-nombre="Acondicionador NutriSoft">0</span>
+
+            <button class="qty-btn plus"
+                data-nombre="Acondicionador NutriSoft"
+                data-precio="6.49">+</button>
+        </div>
+    </div>
+
+
+    <!-- PRODUCTO 3 -->
+    <div class="service-card">
+        <img src="Imagen/aceite.jpg" alt="">
+        <h3>Aceite de Argán 100ml</h3>
+        <p>Aceite nutritivo para brillo y suavidad.</p>
+
+        <span class="service-price">$9.50</span>
+
+        <div class="service-controls">
+            <button class="qty-btn minus"
+                data-nombre="Aceite de Argán"
+                data-precio="9.50">−</button>
+
+            <span class="qty-display"
+                data-nombre="Aceite de Argán">0</span>
+
+            <button class="qty-btn plus"
+                data-nombre="Aceite de Argán"
+                data-precio="9.50">+</button>
+        </div>
+    </div>
+
+</div>
+</main>
+
+
+
+<hr>
+
+<footer class="footer container">
+    <div class="footer-links">
+
+        <div class="link">
+            <h3>Contactos</h3>
+            <div class="socials">
+                <img src="Imagen/s1.svg" alt="">
+                <img src="Imagen/s3.svg" alt="">
+            </div>
+        </div>
+
+        <div class="link">
+            <h3>Redes sociales</h3>
+            <ul>
+                <li><a href="#">Instagram | @Matcha_Salon</a></li>
+                <li><a href="#">Correo | matchasalon@gmail.com</a></li>
+            </ul>
+        </div>
+
+        <div class="link">
+            <h3>Servicios</h3>
+            <ul>
+                <li><a href="#">Cabello</a></li>
+                <li><a href="#">Uñas</a></li>
+                <li><a href="#">Faciales</a></li>
+                <li><a href="#">Maquillaje</a></li>
+            </ul>
+        </div>
+
+        <div class="link">
+            <h3>Sucursal</h3>
+            <ul>
+                <li><a href="#">San Francisco</a></li>
+                <li><a href="#">Teléfono | 300-000</a></li>
+            </ul>
+        </div>
+
+    </div>
+</footer>
+<script src="JS/initAdmin.js"></script>
+<script src="JS/carrito.js"></script>
+<script src="JS/session.js"></script>
+
+
+</body>
+</html>
