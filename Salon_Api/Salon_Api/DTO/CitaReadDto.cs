@@ -3,10 +3,12 @@
     public class CitaReadDto
     {
         public int IdCita { get; set; }
-        public string Cliente { get; set; } = "";
-        public string Estilista { get; set; } = "";
-        public string Servicio { get; set; } = ""; // Aquí usaremos NombreServicio
+
+        public ClienteMiniDto Cliente { get; set; }
+        public EstilistaMiniDto Estilista { get; set; }
+        public ServicioMiniDto Servicio { get; set; }
+
         public DateTime Fecha { get; set; }
-        public string Estado { get; set; } = "";
+        public string Estado { get; set; } = string.Empty;
     }
 }

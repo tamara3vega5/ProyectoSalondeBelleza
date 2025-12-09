@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Salon_Api.DTO;
 using Salon_Api.Services.Interfaces;
+using Salon_Api.DTO;
+using Salon_Api.Modelo;
 
 namespace Salon_Api.Controllers
 {
@@ -9,61 +10,114 @@ namespace Salon_Api.Controllers
     public class VentasController : ControllerBase
     {
         private readonly IVentasService _ventasService;
+        private readonly IProductosService _productosService;
+        private readonly IClientesService _clientesService;
 
-        public VentasController(IVentasService ventasService)
+        public VentasController(
+            IVentasService ventasService,
+            IProductosService productosService,
+            IClientesService clientesService)
         {
             _ventasService = ventasService;
+            _productosService = productosService;
+            _clientesService = clientesService;
         }
 
-        // POST: api/Ventas/registrar
-        [HttpPost("registrar")]
-        public async Task<IActionResult> RegistrarVenta([FromBody] VentaCreateDto dto)
-        {
-            try
-            {
-                // Llama al servicio para crear la venta
-                var ventaCreada = await _ventasService.CrearVenta(dto);
-
-                if (ventaCreada == null)
-                    return BadRequest(new { mensaje = "No se pudo registrar la venta" });
-
-                return Ok(new
-                {
-                    mensaje = "Venta registrada correctamente",
-                    venta = ventaCreada
-                });
-            }
-            catch (Exception ex)
-            {
-                // Captura inner exception para depuración detallada
-                return StatusCode(500, new
-                {
-                    message = "Error al crear la venta",
-                    error = ex.Message,
-                    inner = ex.InnerException?.Message
-                });
-            }
-        }
-
-        // GET: api/Ventas
+        // ===================== GET LISTA =====================
         [HttpGet]
-        public async Task<IActionResult> ObtenerVentas()
+        public async Task<ActionResult<IEnumerable<VentaReadDto>>> GetVentas()
         {
             var ventas = await _ventasService.ObtenerVentas();
-            return Ok(ventas);
+
+            var result = ventas.Select(v => new VentaReadDto
+            {
+                IdVenta = v.IdVenta,
+                IdCliente = v.IdCliente,
+                NombreCliente = v.Cliente.Nombre,
+                Fecha = v.Fecha,
+                Total = v.Total,
+                Detalles = v.DetalleVentas.Select(d => new DetalleVentaDto
+                {
+                    IdDetalle = d.IdDetalle,
+                    IdProducto = d.IdProducto,
+                    NombreProducto = d.Producto.NombreProducto,
+                    Cantidad = d.Cantidad,
+                    Subtotal = d.Subtotal
+                }).ToList()
+            });
+
+            return Ok(result);
         }
 
-        // GET: api/Ventas/{id}
+        // ===================== GET POR ID =====================
         [HttpGet("{id}")]
-        public async Task<IActionResult> ObtenerVenta(int id)
+        public async Task<ActionResult<VentaReadDto>> GetVenta(int id)
         {
-            var venta = await _ventasService.ObtenerVenta(id);
-            if (venta == null)
-                return NotFound(new { mensaje = "Venta no encontrada" });
+            var v = await _ventasService.ObtenerVenta(id);
 
-            return Ok(venta);
+            if (v == null)
+                return NotFound();
+
+            return Ok(new VentaReadDto
+            {
+                IdVenta = v.IdVenta,
+                IdCliente = v.IdCliente,
+                NombreCliente = v.Cliente.Nombre,
+                Fecha = v.Fecha,
+                Total = v.Total,
+                Detalles = v.DetalleVentas.Select(d => new DetalleVentaDto
+                {
+                    IdDetalle = d.IdDetalle,
+                    IdProducto = d.IdProducto,
+                    NombreProducto = d.Producto.NombreProducto,
+                    Cantidad = d.Cantidad,
+                    Subtotal = d.Subtotal
+                }).ToList()
+            });
+        }
+
+        // ===================== POST (CREAR VENTA) =====================
+        [HttpPost]
+        public async Task<ActionResult> PostVenta(VentaCreateDto dto)
+        {
+            var venta = new Ventas
+            {
+                IdCliente = dto.IdCliente,
+                Fecha = DateTime.Now,
+                Total = dto.Total
+            };
+
+            var detalles = new List<DetalleVenta>();
+
+            foreach (var d in dto.Detalles)
+            {
+                var prod = await _productosService.ObtenerProducto(d.IdProducto);
+                if (prod == null)
+                    return BadRequest($"Producto {d.IdProducto} no existe.");
+
+                detalles.Add(new DetalleVenta
+                {
+                    IdProducto = d.IdProducto,
+                    Cantidad = d.Cantidad,
+                    Subtotal = prod.Precio * d.Cantidad
+                });
+            }
+
+            var creada = await _ventasService.CrearVenta(venta, detalles);
+
+            return CreatedAtAction(nameof(GetVenta), new { id = creada.IdVenta }, creada);
+        }
+
+        // ===================== DELETE =====================
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteVenta(int id)
+        {
+            var ok = await _ventasService.EliminarVenta(id);
+
+            if (!ok)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }
-
-//////

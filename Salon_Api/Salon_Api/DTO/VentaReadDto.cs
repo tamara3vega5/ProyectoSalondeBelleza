@@ -1,6 +1,6 @@
 ﻿namespace Salon_Api.DTO
 {
-    public class VentaDto
+    public class VentaReadDto
     {
         public int IdVenta { get; set; }
         public int IdCliente { get; set; }

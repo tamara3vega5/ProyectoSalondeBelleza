@@ -1,398 +1,423 @@
 /* ============================================================
-              SISTEMA ADMIN COMPLETO – MATCHASALON
-   CRUD Usuarios – CRUD Servicios – CRUD Productos – Reservas
-   + NUEVO: CRUD ESTILISTAS
+   ADMIN.JS – SISTEMA ADMINISTRATIVO COMPLETO MATCHASALON
+   Totalmente conectado al backend (API REST .NET)
 ============================================================ */
 
-/* ============================================================
-      1. DATOS BASE (solo si no existen)
-============================================================ */
+/* ===========================
+      RUTAS DE API
+=========================== */
+const API_CLIENTES   = "https://localhost:7024/api/Clientes";
+const API_SERVICIOS  = "https://localhost:7024/api/Servicios";
+const API_PRODUCTOS  = "https://localhost:7024/api/Productos";
+const API_ESTILISTAS = "https://localhost:7024/api/Estilistas";
+const API_CITAS      = "https://localhost:7024/api/Citas";
 
-/* ---- PRODUCTOS BASE ---- */
-const productosBase = [
-    { id: 1, nombre: "Shampoo Herbal", descripcion: "Repara y fortalece desde el interior.", precio: 12.00, imagen: "Imagen/shampooHerbal.jpg" },
-    { id: 2, nombre: "Acondicionador Nutrisoft", descripcion: "Hidratación profunda y brillo natural.", precio: 14.00, imagen: "Imagen/acondicionadorNutrisoft.jpg" },
-    { id: 3, nombre: "Cera de cabello", descripcion: "Cera para estilizar tus peinados favoritos.", precio: 15.00, imagen: "Imagen/cera.jpg" },
-    { id: 4, nombre: "Gel para cabello", descripcion: "Define tus rizos todo el día.", precio: 13.00, imagen: "Imagen/gel.jpg" },
-    { id: 5, nombre: "Aceite de cabello", descripcion: "Repara y reduce el frizz sin grasa.", precio: 28.00, imagen: "Imagen/aceite.jpg" },
-    { id: 6, nombre: "Plancha Profesional Titanium Pro", descripcion: "Herramienta profesional para cualquier estilo.", precio: 39.99, imagen: "Imagen/plancha.jpg" },
-    { id: 7, nombre: "Secadora profesional", descripcion: "Tecnología iónica doble avanzada.", precio: 39.99, imagen: "Imagen/secadora.jpg" }
-];
+/* ===========================
+      PROTECCIÓN ADMIN
+=========================== */
+document.addEventListener("DOMContentLoaded", () => {
 
-if (!localStorage.getItem("productos")) {
-    localStorage.setItem("productos", JSON.stringify(productosBase));
-}
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (!usuario || usuario.rol !== "admin") {
+        alert("Acceso no autorizado.");
+        window.location.href = "index.html";
+        return;
+    }
 
-/* ---- SERVICIOS BASE ---- */
-const serviciosBase = [
-    { id: 1, nombre: "Manicure + Esmaltado", duracion: 40, precio: 25 },
-    { id: 2, nombre: "Pedicure Spa + Esmaltado Liso", duracion: 50, precio: 20 },
-    { id: 3, nombre: "Corte de Cabello", duracion: 30, precio: 30 },
-    { id: 4, nombre: "Highlights", duracion: 80, precio: 80 },
-    { id: 5, nombre: "Manicure + Diseños", duracion: 45, precio: 35 },
-    { id: 6, nombre: "Limpieza Facial + Hidratación", duracion: 60, precio: 60 }
-];
-
-if (!localStorage.getItem("servicios")) {
-    localStorage.setItem("servicios", JSON.stringify(serviciosBase));
-}
-
-/* ---- ESTILISTAS BASE (NUEVO) ---- */
-const estilistasBase = [
-    { id: 1, nombre: "Emilia", especialidad: "Cabello", telefono: "6000-0001", correo: "emilia@matchasalon.com" },
-    { id: 2, nombre: "Carlos", especialidad: "Cabello", telefono: "6000-0002", correo: "carlos@matchasalon.com" },
-    { id: 3, nombre: "Antonella", especialidad: "Uñas", telefono: "6000-0003", correo: "antonella@matchasalon.com" },
-    { id: 4, nombre: "Sofía", especialidad: "Faciales", telefono: "6000-0004", correo: "sofia@matchasalon.com" },
-    { id: 5, nombre: "Diego", especialidad: "Faciales", telefono: "6000-0005", correo: "diego@matchasalon.com" },
-    { id: 6, nombre: "Ana", especialidad: "Maquillaje", telefono: "6000-0006", correo: "ana@matchasalon.com" }
-];
-
-if (!localStorage.getItem("estilistas")) {
-    localStorage.setItem("estilistas", JSON.stringify(estilistasBase));
-}
-
-/* ============================================================
-      2. UTILIDADES
-============================================================ */
-
-function guardar(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-function cargar(key) { return JSON.parse(localStorage.getItem(key)) || []; }
-
-/* ============================================================
-      3. SIDEBAR – Cambiar secciones
-============================================================ */
-
-document.querySelectorAll(".sidebar-menu li").forEach(btn => {
-    btn.addEventListener("click", () => {
-        document.querySelectorAll(".sidebar-menu li").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        const target = btn.dataset.section;
-        document.querySelectorAll(".admin-section").forEach(sec => sec.classList.remove("active"));
-        document.getElementById(target).classList.add("active");
-
-        actualizarDashboard();
-        cargarUsuarios();
-        cargarServicios();
-        cargarProductos();
-        cargarEstilistas();
-        cargarReservas();
-    });
+    inicializarSidebar();
+    actualizarDashboard();
+    cargarUsuarios();
+    cargarEstilistas();
+    cargarServicios();
+    cargarProductos();
+    cargarReservas();
 });
 
-/* ============================================================
-      4. DASHBOARD
-============================================================ */
+/* ===========================
+      SIDEBAR CAMBIO SECCIONES
+=========================== */
+function inicializarSidebar() {
+    document.querySelectorAll(".sidebar-menu li").forEach(btn => {
+        btn.addEventListener("click", () => {
 
-function actualizarDashboard() {
-    document.getElementById("count-usuarios").textContent = cargar("usuarios").length;
-    document.getElementById("count-servicios").textContent = cargar("servicios").length;
-    document.getElementById("count-productos").textContent = cargar("productos").length;
-    document.getElementById("count-reservas").textContent = cargar("reservas").length;
+            document.querySelectorAll(".sidebar-menu li").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            const destino = btn.dataset.section;
+            document.querySelectorAll(".admin-section").forEach(sec => sec.classList.remove("active"));
+            document.getElementById(destino).classList.add("active");
+        });
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("usuario");
+        window.location.href = "login.html";
+    });
 }
 
 /* ============================================================
-      5. CRUD USUARIOS
+   DASHBOARD (TOTAL DE REGISTROS)
 ============================================================ */
+async function actualizarDashboard() {
 
-function cargarUsuarios() {
-    const lista = cargar("usuarios");
+    const countUsuarios  = document.getElementById("count-usuarios");
+    const countServicios = document.getElementById("count-servicios");
+    const countProductos = document.getElementById("count-productos");
+    const countReservas  = document.getElementById("count-reservas");
+
+    try {
+        const [u, s, p, r] = await Promise.all([
+            fetch(API_CLIENTES).then(r => r.json()),
+            fetch(API_SERVICIOS).then(r => r.json()),
+            fetch(API_PRODUCTOS).then(r => r.json()),
+            fetch(API_CITAS).then(r => r.json())
+        ]);
+
+        countUsuarios.textContent  = u.length;
+        countServicios.textContent = s.length;
+        countProductos.textContent = p.length;
+        countReservas.textContent  = r.length;
+
+    } catch (e) {
+        console.error("Error Dashboard:", e);
+    }
+}
+
+/* ============================================================
+   CRUD USUARIOS (CLIENTES)
+============================================================ */
+async function cargarUsuarios() {
     const tbody = document.getElementById("usuarios-body");
-    tbody.innerHTML = "";
+    if (!tbody) return;
 
-    lista.forEach(user => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${user.nombre}</td>
-                <td>${user.email}</td>
-                <td>${user.rol}</td>
-                <td>
-                    <button onclick="editarUsuario('${user.email}')">✏️</button>
-                    <button onclick="eliminarUsuario('${user.email}')">🗑️</button>
-                </td>
-            </tr>`;
-    });
+    try {
+        const usuarios = await fetch(API_CLIENTES).then(r => r.json());
+
+        tbody.innerHTML = "";
+        usuarios.forEach(u => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${u.nombre}</td>
+                    <td>${u.correo}</td>
+                    <td>${u.rol}</td>
+                    <td>
+                        <button onclick="eliminarUsuario(${u.idCliente})">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (e) {
+        console.error("Error cargando usuarios:", e);
+    }
+}
+
+async function eliminarUsuario(id) {
+    if (!confirm("¿Eliminar este usuario?")) return;
+
+    try {
+        await fetch(`${API_CLIENTES}/${id}`, { method: "DELETE" });
+        cargarUsuarios();
+        actualizarDashboard();
+    } catch (e) {
+        console.error("Error eliminando usuario:", e);
+    }
 }
 
 /* ============================================================
-      6. CRUD SERVICIOS
+   CRUD ESTILISTAS
 ============================================================ */
+async function cargarEstilistas() {
+    const tbody = document.getElementById("estilistas-body");
+    if (!tbody) return;
 
-let servicios = cargar("servicios");
-function saveServicios() { guardar("servicios", servicios); }
+    try {
+        const data = await fetch(API_ESTILISTAS).then(r => r.json());
+        tbody.innerHTML = "";
 
-function cargarServicios() {
-    const tbody = document.getElementById("servicios-body");
-    tbody.innerHTML = "";
+        data.forEach(e => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${e.nombre}</td>
+                    <td>${e.especialidad}</td>
+                    <td>${e.telefono}</td>
+                    <td>${e.correo}</td>
+                    <td>
+                        <button onclick='cargarEstilistaParaEditar(${e.idEstilista})'>✏️</button>
+                        <button onclick='eliminarEstilista(${e.idEstilista})'>🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
 
-    servicios.forEach(serv => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${serv.nombre}</td>
-                <td>${serv.duracion} min</td>
-                <td>$${serv.precio}</td>
-                <td>
-                    <button onclick="cargarServicioParaEditar(${serv.id})">✏️ Editar</button>
-                    <button onclick="eliminarServicio(${serv.id})">🗑️ Eliminar</button>
-                </td>
-            </tr>`;
-    });
+    } catch (e) {
+        console.error("Error cargando estilistas:", e);
+    }
 }
 
-/* ---- AGREGAR SERVICIO ---- */
-document.getElementById("btn-save-servicio").addEventListener("click", () => {
+document.getElementById("btn-save-estilista").addEventListener("click", async () => {
+
+    const nombre = document.getElementById("est-nombre").value.trim();
+    const especialidad = document.getElementById("est-especialidad").value.trim();
+    const telefono = document.getElementById("est-telefono").value.trim();
+    const correo = document.getElementById("est-correo").value.trim();
+
+    if (!nombre || !especialidad || !telefono || !correo)
+        return alert("Todos los campos son obligatorios.");
+
+    const estilista = { nombre, especialidad, telefono, correo };
+
+    try {
+        await fetch(API_ESTILISTAS, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(estilista)
+        });
+
+        cargarEstilistas();
+        actualizarDashboard();
+
+        document.getElementById("est-nombre").value = "";
+        document.getElementById("est-especialidad").value = "";
+        document.getElementById("est-telefono").value = "";
+        document.getElementById("est-correo").value = "";
+
+    } catch (e) {
+        console.error("Error agregando estilista:", e);
+    }
+});
+
+async function eliminarEstilista(id) {
+    if (!confirm("¿Eliminar este estilista?")) return;
+
+    try {
+        await fetch(`${API_ESTILISTAS}/${id}`, { method: "DELETE" });
+        cargarEstilistas();
+        actualizarDashboard();
+    } catch (e) {
+        console.error("Error eliminando estilista:", e);
+    }
+}
+
+/* ============================================================
+   CRUD SERVICIOS
+============================================================ */
+async function cargarServicios() {
+    const tbody = document.getElementById("servicios-body");
+    if (!tbody) return;
+
+    try {
+        const data = await fetch(API_SERVICIOS).then(r => r.json());
+        tbody.innerHTML = "";
+
+        data.forEach(s => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${s.nombreServicio}</td>
+                    <td>${s.duracionMin} min</td>
+                    <td>$${s.precio}</td>
+                    <td>
+                        <button onclick="cargarServicioParaEditar(${s.idServicio})">✏️ Editar</button>
+                        <button onclick="eliminarServicio(${s.idServicio})">🗑️ Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (e) {
+        console.error("Error cargando servicios:", e);
+    }
+}
+
+document.getElementById("btn-save-servicio").addEventListener("click", async () => {
+
     const nombre = document.getElementById("serv-nombre").value.trim();
     const duracion = parseInt(document.getElementById("serv-duracion").value);
     const precio = parseFloat(document.getElementById("serv-precio").value);
 
-    if (!nombre || !duracion || !precio) return alert("Todos los campos son obligatorios.");
+    if (!nombre || !duracion || !precio) {
+        return alert("Todos los campos son obligatorios.");
+    }
 
-    servicios.push({ id: Date.now(), nombre, duracion, precio });
+    const nuevo = {
+        nombreServicio: nombre,
+        duracionMin: duracion,
+        precio: precio,
+        descripcion: ""
+    };
 
-    saveServicios();
-    cargarServicios();
+    try {
+        await fetch(API_SERVICIOS, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevo)
+        });
 
-    document.getElementById("serv-nombre").value = "";
-    document.getElementById("serv-duracion").value = "";
-    document.getElementById("serv-precio").value = "";
+        cargarServicios();
+        actualizarDashboard();
 
-    alert("Servicio agregado correctamente.");
+        document.getElementById("serv-nombre").value = "";
+        document.getElementById("serv-duracion").value = "";
+        document.getElementById("serv-precio").value = "";
+
+    } catch (e) {
+        console.error("Error creando servicio:", e);
+    }
 });
 
-/* ---- CARGAR SERVICIO EN FORMULARIO ---- */
-function cargarServicioParaEditar(id) {
-    const s = servicios.find(x => x.id === id);
+async function eliminarServicio(id) {
+    if (!confirm("¿Eliminar servicio?")) return;
 
-    document.getElementById("form-edit-servicio").style.display = "block";
-
-    document.getElementById("edit-serv-id").value = s.id;
-    document.getElementById("edit-serv-nombre").value = s.nombre;
-    document.getElementById("edit-serv-duracion").value = s.duracion;
-    document.getElementById("edit-serv-precio").value = s.precio;
-}
-
-/* ---- EDITAR SERVICIO ---- */
-document.getElementById("btn-update-servicio").addEventListener("click", () => {
-    const id = parseInt(document.getElementById("edit-serv-id").value);
-    const nombre = document.getElementById("edit-serv-nombre").value.trim();
-    const duracion = parseInt(document.getElementById("edit-serv-duracion").value);
-    const precio = parseFloat(document.getElementById("edit-serv-precio").value);
-
-    const index = servicios.findIndex(s => s.id === id);
-
-    servicios[index] = { id, nombre, duracion, precio };
-
-    saveServicios();
-    cargarServicios();
-
-    document.getElementById("form-edit-servicio").style.display = "none";
-
-    alert("Servicio actualizado correctamente.");
-});
-
-/* ---- CANCELAR ---- */
-document.getElementById("btn-cancel-serv-edit").addEventListener("click", () => {
-    document.getElementById("form-edit-servicio").style.display = "none";
-});
-
-/* ---- ELIMINAR SERVICIO ---- */
-function eliminarServicio(id) {
-    if (!confirm("¿Seguro que deseas eliminar este servicio?")) return;
-
-    servicios = servicios.filter(s => s.id !== id);
-    saveServicios();
-    cargarServicios();
+    try {
+        await fetch(`${API_SERVICIOS}/${id}`, { method: "DELETE" });
+        cargarServicios();
+        actualizarDashboard();
+    } catch (e) {
+        console.error("Error eliminando servicio:", e);
+    }
 }
 
 /* ============================================================
-      7. CRUD PRODUCTOS
+   CRUD PRODUCTOS
 ============================================================ */
-
-let productos = cargar("productos");
-function saveProductos() { guardar("productos", productos); }
-
-function cargarProductos() {
+async function cargarProductos() {
     const tbody = document.getElementById("productos-body");
-    tbody.innerHTML = "";
+    if (!tbody) return;
 
-    productos.forEach(prod => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${prod.nombre}</td>
-                <td>${prod.descripcion}</td>
-                <td>$${prod.precio}</td>
-                <td>
-                    <button onclick="cargarProductoParaEditar(${prod.id})">✏️</button>
-                    <button onclick="eliminarProducto(${prod.id})">🗑️</button>
-                </td>
-            </tr>`;
-    });
+    try {
+        const data = await fetch(API_PRODUCTOS).then(r => r.json());
+        tbody.innerHTML = "";
+
+        data.forEach(p => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${p.nombreProducto}</td>
+                    <td>${p.descripcion}</td>
+                    <td>$${p.precio}</td>
+                    <td>
+                        <button onclick="cargarProductoParaEditar(${p.idProducto})">✏️</button>
+                        <button onclick="eliminarProducto(${p.idProducto})">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (e) {
+        console.error("Error cargando productos:", e);
+    }
 }
 
-/* ---- AGREGAR PRODUCTO ---- */
-document.getElementById("btn-save-producto").addEventListener("click", () => {
+document.getElementById("btn-save-producto").addEventListener("click", async () => {
+
     const nombre = document.getElementById("prod-nombre").value.trim();
     const desc = document.getElementById("prod-desc").value.trim();
     const precio = parseFloat(document.getElementById("prod-precio").value);
     const imagen = document.getElementById("prod-imagen").value.trim();
 
-    if (!nombre || !desc || !precio || !imagen) return alert("Todos los campos son obligatorios");
-
-    productos.push({ id: Date.now(), nombre, descripcion: desc, precio, imagen });
-    saveProductos();
-    cargarProductos();
-
-    document.getElementById("prod-nombre").value = "";
-    document.getElementById("prod-desc").value = "";
-    document.getElementById("prod-precio").value = "";
-    document.getElementById("prod-imagen").value = "";
-
-    alert("Producto agregado correctamente.");
-});
-
-/* ---- EDITAR PRODUCTO ---- */
-function cargarProductoParaEditar(id) {
-    const prod = productos.find(p => p.id === id);
-
-    document.getElementById("form-edit-producto").style.display = "block";
-    document.getElementById("edit-prod-id").value = prod.id;
-    document.getElementById("edit-prod-nombre").value = prod.nombre;
-    document.getElementById("edit-prod-desc").value = prod.descripcion;
-    document.getElementById("edit-prod-precio").value = prod.precio;
-    document.getElementById("edit-prod-imagen").value = prod.imagen;
-}
-
-document.getElementById("btn-update-producto").addEventListener("click", () => {
-    const id = parseInt(document.getElementById("edit-prod-id").value);
-    const nombre = document.getElementById("edit-prod-nombre").value;
-    const desc = document.getElementById("edit-prod-desc").value;
-    const precio = parseFloat(document.getElementById("edit-prod-precio").value);
-    const imagen = document.getElementById("edit-prod-imagen").value;
-
-    const index = productos.findIndex(p => p.id === id);
-
-    productos[index] = { id, nombre, descripcion: desc, precio, imagen };
-    saveProductos();
-    cargarProductos();
-
-    document.getElementById("form-edit-producto").style.display = "none";
-
-    alert("Producto actualizado.");
-});
-
-/* ---- CANCELAR ---- */
-document.getElementById("btn-cancel-edit").addEventListener("click", () => {
-    document.getElementById("form-edit-producto").style.display = "none";
-});
-
-/* ---- ELIMINAR PRODUCTO ---- */
-function eliminarProducto(id) {
-    if (!confirm("¿Seguro que deseas eliminar este producto?")) return;
-
-    productos = productos.filter(p => p.id !== id);
-    saveProductos();
-    cargarProductos();
-}
-
-/* ============================================================
-      8. CRUD ESTILISTAS (NUEVO)
-============================================================ */
-
-let estilistas = cargar("estilistas");
-function saveEstilistas() { guardar("estilistas", estilistas); }
-
-function cargarEstilistas() {
-    const tbody = document.getElementById("estilistas-body");
-    if (!tbody) return;
-
-    tbody.innerHTML = "";
-
-    estilistas.forEach(e => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${e.nombre}</td>
-                <td>${e.especialidad}</td>
-                <td>${e.telefono}</td>
-                <td>${e.correo}</td>
-                <td>
-                    <button onclick="editarEstilista(${e.id})">✏️</button>
-                    <button onclick="eliminarEstilista(${e.id})">🗑️</button>
-                </td>
-            </tr>
-        `;
-    });
-}
-
-document.getElementById("btn-save-estilista")?.addEventListener("click", () => {
-    const nombre = document.getElementById("est-nombre").value.trim();
-    const esp = document.getElementById("est-especialidad").value.trim();
-    const tel = document.getElementById("est-telefono").value.trim();
-    const email = document.getElementById("est-correo").value.trim();
-
-    if (!nombre || !esp || !tel || !email)
+    if (!nombre || !desc || !precio)
         return alert("Todos los campos son obligatorios.");
 
-    estilistas.push({
-        id: Date.now(),
-        nombre,
-        especialidad: esp,
-        telefono: tel,
-        correo: email
-    });
+    const nuevo = {
+        nombreProducto: nombre,
+        descripcion: desc,
+        precio: precio,
+        stock: 20, 
+        imagen: imagen
+    };
 
-    saveEstilistas();
-    cargarEstilistas();
+    try {
+        await fetch(API_PRODUCTOS, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevo)
+        });
 
-    document.getElementById("est-nombre").value = "";
-    document.getElementById("est-especialidad").value = "";
-    document.getElementById("est-telefono").value = "";
-    document.getElementById("est-correo").value = "";
+        cargarProductos();
+        actualizarDashboard();
 
-    alert("Estilista agregado correctamente.");
+        document.getElementById("prod-nombre").value = "";
+        document.getElementById("prod-desc").value = "";
+        document.getElementById("prod-precio").value = "";
+        document.getElementById("prod-imagen").value = "";
+
+    } catch (e) {
+        console.error("Error creando product:", e);
+    }
 });
 
-function eliminarEstilista(id) {
-    if (!confirm("¿Eliminar estilista?")) return;
+async function eliminarProducto(id) {
+    if (!confirm("¿Eliminar producto?")) return;
 
-    estilistas = estilistas.filter(e => e.id !== id);
-    saveEstilistas();
-    cargarEstilistas();
+    try {
+        await fetch(`${API_PRODUCTOS}/${id}`, { method: "DELETE" });
+        cargarProductos();
+        actualizarDashboard();
+    } catch (e) {
+        console.error("Error eliminando producto:", e);
+    }
 }
 
 /* ============================================================
-      9. CRUD RESERVAS
+   CRUD RESERVAS (CITAS)
 ============================================================ */
-
-function cargarReservas() {
-    const lista = cargar("reservas");
+async function cargarReservas() {
     const tbody = document.getElementById("reservas-body");
     if (!tbody) return;
 
-    tbody.innerHTML = "";
+    try {
+        const reservas = await fetch(API_CITAS).then(r => r.json());
 
-    lista.forEach(res => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${res.cliente}</td>
-                <td>${res.servicio}</td>
-                <td>${res.estilista || "N/A"}</td>
-                <td>${res.fecha}</td>
-                <td>${res.estado}</td>
-                <td>
-                    <button onclick="cambiarEstado(${res.id})">✔</button>
-                    <button onclick="eliminarReserva(${res.id})">🗑️</button>
-                </td>
-            </tr>`;
-    });
+        tbody.innerHTML = "";
+
+        reservas.forEach(r => {
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${r.cliente?.nombre || "N/A"}</td>
+                    <td>${r.servicio?.nombreServicio || "N/A"}</td>
+                    <td>${r.estilista?.nombre || "N/A"}</td>
+                    <td>${new Date(r.fecha).toLocaleString()}</td>
+                    <td>${r.estado}</td>
+                    <td>
+                        <button onclick="cambiarEstado(${r.idCita})">✔ Estado</button>
+                        <button onclick="eliminarReserva(${r.idCita})">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (e) {
+        console.error("Error cargando reservas:", e);
+    }
 }
 
-/* ============================================================
-      10. INICIALIZACIÓN
-============================================================ */
+async function eliminarReserva(id) {
+    if (!confirm("¿Eliminar esta reserva?")) return;
 
-actualizarDashboard();
-cargarUsuarios();
-cargarServicios();
-cargarProductos();
-cargarEstilistas();
-cargarReservas();
+    try {
+        await fetch(`${API_CITAS}/${id}`, { method: "DELETE" });
+        cargarReservas();
+        actualizarDashboard();
+    } catch (e) {
+        console.error("Error eliminando:", e);
+    }
+}
+
+async function cambiarEstado(id) {
+    const nuevo = prompt("Nuevo estado: Pendiente / Completada / Cancelada", "Completada");
+
+    if (!nuevo) return;
+
+    const body = { idCita: id, nuevoEstado: nuevo };
+
+    try {
+        await fetch(`${API_CITAS}/estado`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+
+        cargarReservas();
+    } catch (e) {
+        console.error("Error cambiando estado:", e);
+    }
+}

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Salon_Api.Services.Interfaces;
 using Salon_Api.DTO;
 using Salon_Api.Modelo;
+using Salon_Api.Data;
 
 namespace Salon_Api.Controllers
 {
@@ -10,216 +12,166 @@ namespace Salon_Api.Controllers
     public class CitasController : ControllerBase
     {
         private readonly ICitasService _service;
+        private readonly ApplicationDbContext _context;
 
-        public CitasController(ICitasService service)
+        public CitasController(ICitasService service, ApplicationDbContext context)
         {
             _service = service;
+            _context = context;
         }
 
-        // GET: api/Citas
+        // ===================== GET TODAS =====================
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CitaReadDto>>> GetCitas()
         {
-            try
-            {
-                var citas = await _service.ObtenerCitas();
+            var citas = await _service.ObtenerCitas();
 
-                var resultado = citas.Select(c => new CitaReadDto
+            var resultado = citas.Select(c => new CitaReadDto
+            {
+                IdCita = c.IdCita,
+                Fecha = c.Fecha,
+                Estado = c.Estado,
+
+                Cliente = new ClienteMiniDto
                 {
-                    IdCita = c.IdCita,
-                    Cliente = c.Cliente?.Nombre ?? "",
-                    Estilista = c.Estilista?.Nombre ?? "",
-                    Servicio = c.Servicio?.NombreServicio ?? "",
-                    Fecha = c.Fecha,
-                    Estado = c.Estado
-                });
+                    IdCliente = c.Cliente.IdCliente,
+                    Nombre = c.Cliente.Nombre
+                },
+                Estilista = new EstilistaMiniDto
+                {
+                    IdEstilista = c.Estilista.IdEstilista,
+                    Nombre = c.Estilista.Nombre
+                },
+                Servicio = new ServicioMiniDto
+                {
+                    IdServicio = c.Servicio.IdServicio,
+                    NombreServicio = c.Servicio.NombreServicio
+                }
+            });
 
-                return Ok(resultado);
-            }
-            catch
-            {
-                return BadRequest(new { mensaje = "Ocurrió un error al obtener las citas. Intenta nuevamente." });
-            }
+            return Ok(resultado);
         }
 
-        // GET: api/Citas/5
+        // ===================== GET POR ID =====================
         [HttpGet("{id}")]
         public async Task<ActionResult<CitaReadDto>> GetCita(int id)
         {
-            try
-            {
-                var c = await _service.ObtenerCita(id);
-                if (c == null)
-                    return NotFound(new { mensaje = "Cita no encontrada" });
+            var c = await _service.ObtenerCita(id);
+            if (c == null)
+                return NotFound();
 
-                var dto = new CitaReadDto
+            return Ok(new CitaReadDto
+            {
+                IdCita = c.IdCita,
+                Fecha = c.Fecha,
+                Estado = c.Estado,
+
+                Cliente = new ClienteMiniDto
                 {
-                    IdCita = c.IdCita,
-                    Cliente = c.Cliente?.Nombre ?? "",
-                    Estilista = c.Estilista?.Nombre ?? "",
-                    Servicio = c.Servicio?.NombreServicio ?? "",
-                    Fecha = c.Fecha,
-                    Estado = c.Estado
-                };
-
-                return Ok(dto);
-            }
-            catch
-            {
-                return BadRequest(new { mensaje = "Ocurrió un error al obtener la cita. Intenta nuevamente." });
-            }
+                    IdCliente = c.Cliente.IdCliente,
+                    Nombre = c.Cliente.Nombre
+                },
+                Estilista = new EstilistaMiniDto
+                {
+                    IdEstilista = c.Estilista.IdEstilista,
+                    Nombre = c.Estilista.Nombre
+                },
+                Servicio = new ServicioMiniDto
+                {
+                    IdServicio = c.Servicio.IdServicio,
+                    NombreServicio = c.Servicio.NombreServicio
+                }
+            });
         }
 
-        // POST: api/Citas
+        // ===================== CREAR =====================
         [HttpPost]
-        public async Task<ActionResult<CitaReadDto>> PostCita([FromBody] CitaCreateDto dto)
+        public async Task<ActionResult<CitaReadDto>> PostCita(CitaCreateDto dto)
         {
-            try
+            var cita = new Citas
             {
-                // 1. Validación: fecha pasada
-                if (dto.Fecha < DateTime.Now)
-                    return BadRequest(new { mensaje = "No se puede crear una cita en una fecha/hora pasada." });
+                IdCliente = dto.IdCliente,
+                IdEstilista = dto.IdEstilista,
+                IdServicio = dto.IdServicio,
+                Fecha = dto.Fecha,
+                Estado = "Pendiente"
+            };
 
-                // 2. Validación: horario del salón (ej: 9:00 - 18:00)
-                TimeSpan horaApertura = new TimeSpan(9, 0, 0);
-                TimeSpan horaCierre = new TimeSpan(18, 0, 0);
+            var creada = await _service.CrearCita(cita);
 
-                if (dto.Fecha.TimeOfDay < horaApertura || dto.Fecha.TimeOfDay > horaCierre)
-                    return BadRequest(new { mensaje = "La cita debe estar dentro del horario del salón (09:00 a 18:00)." });
-
-                var citasExistentes = await _service.ObtenerCitas();
-
-                // 3. Validación: estilista ocupado
-                bool estilistaOcupado = citasExistentes.Any(c =>
-                    c.IdEstilista == dto.IdEstilista &&
-                    c.Fecha.Date == dto.Fecha.Date &&
-                    c.Fecha.Hour == dto.Fecha.Hour &&
-                    c.Fecha.Minute == dto.Fecha.Minute
-                );
-
-                if (estilistaOcupado)
-                    return BadRequest(new { mensaje = "El estilista ya tiene una cita en esa fecha y hora." });
-
-                // 4. Validación: cliente ocupado
-                bool clienteOcupado = citasExistentes.Any(c =>
-                    c.IdCliente == dto.IdCliente &&
-                    c.Fecha.Date == dto.Fecha.Date &&
-                    c.Fecha.Hour == dto.Fecha.Hour &&
-                    c.Fecha.Minute == dto.Fecha.Minute
-                );
-
-                if (clienteOcupado)
-                    return BadRequest(new { mensaje = "El cliente ya tiene una cita en esa fecha y hora." });
-
-                // Crear la cita
-                var cita = new Citas
-                {
-                    IdCliente = dto.IdCliente,
-                    IdEstilista = dto.IdEstilista,
-                    IdServicio = dto.IdServicio,
-                    Fecha = dto.Fecha,
-                    Estado = "Confirmado"
-                };
-
-                var nueva = await _service.CrearCita(cita);
-
-                var readDto = new CitaReadDto
-                {
-                    IdCita = nueva.IdCita,
-                    Cliente = nueva.Cliente?.Nombre ?? "",
-                    Estilista = nueva.Estilista?.Nombre ?? "",
-                    Servicio = nueva.Servicio?.NombreServicio ?? "",
-                    Fecha = nueva.Fecha,
-                    Estado = nueva.Estado
-                };
-
-                return CreatedAtAction(nameof(GetCita), new { id = nueva.IdCita }, readDto);
-            }
-            catch
+            return CreatedAtAction(nameof(GetCita), new { id = creada.IdCita }, new CitaReadDto
             {
-                return BadRequest(new { mensaje = "Ocurrió un error al crear la cita. Intenta nuevamente." });
-            }
+                IdCita = creada.IdCita,
+                Fecha = creada.Fecha,
+                Estado = creada.Estado,
+
+                Cliente = new ClienteMiniDto
+                {
+                    IdCliente = creada.Cliente.IdCliente,
+                    Nombre = creada.Cliente.Nombre
+                },
+                Estilista = new EstilistaMiniDto
+                {
+                    IdEstilista = creada.Estilista.IdEstilista,
+                    Nombre = creada.Estilista.Nombre
+                },
+                Servicio = new ServicioMiniDto
+                {
+                    IdServicio = creada.Servicio.IdServicio,
+                    NombreServicio = creada.Servicio.NombreServicio
+                }
+            });
         }
 
-        // PUT: api/Citas/5
+        // ===================== ACTUALIZAR =====================
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCita(int id, [FromBody] CitaUpdateDto dto)
+        public async Task<IActionResult> PutCita(int id, CitaUpdateDto dto)
         {
-            try
+            var nueva = new Citas
             {
-                // Validación: fecha pasada
-                if (dto.Fecha < DateTime.Now)
-                    return BadRequest(new { mensaje = "No se puede asignar una fecha/hora pasada a la cita." });
+                IdCliente = dto.IdCliente,
+                IdEstilista = dto.IdEstilista,
+                IdServicio = dto.IdServicio,
+                Fecha = dto.Fecha,
+                Estado = dto.Estado
+            };
 
-                // Validación: horario del salón
-                TimeSpan apertura = new TimeSpan(9, 0, 0);
-                TimeSpan cierre = new TimeSpan(18, 0, 0);
+            var ok = await _service.ActualizarCita(id, nueva);
 
-                if (dto.Fecha.TimeOfDay < apertura || dto.Fecha.TimeOfDay > cierre)
-                    return BadRequest(new { mensaje = "La cita debe estar dentro del horario del salón (09:00 a 18:00)." });
+            if (!ok)
+                return NotFound();
 
-                var citas = await _service.ObtenerCitas();
-
-                // Validar estilista
-                bool estilistaOcupado = citas.Any(c =>
-                    c.IdCita != id &&
-                    c.IdEstilista == dto.IdEstilista &&
-                    c.Fecha == dto.Fecha
-                );
-
-                if (estilistaOcupado)
-                    return BadRequest(new { mensaje = "El estilista ya tiene una cita programada para esa fecha y hora." });
-
-                // Validar cliente
-                bool clienteOcupado = citas.Any(c =>
-                    c.IdCita != id &&
-                    c.IdCliente == dto.IdCliente &&
-                    c.Fecha == dto.Fecha
-                );
-
-                if (clienteOcupado)
-                    return BadRequest(new { mensaje = "El cliente ya tiene otra cita programada en la misma fecha y hora." });
-
-                // Actualizar cita
-                var cita = new Citas
-                {
-                    IdCliente = dto.IdCliente,
-                    IdEstilista = dto.IdEstilista,
-                    IdServicio = dto.IdServicio,
-                    Fecha = dto.Fecha,
-                    Estado = dto.Estado
-                };
-
-                var ok = await _service.ActualizarCita(id, cita);
-
-                if (!ok)
-                    return NotFound(new { mensaje = "Cita no encontrada" });
-
-                return NoContent();
-            }
-            catch
-            {
-                return BadRequest(new { mensaje = "Ocurrió un error al actualizar la cita. Intenta nuevamente." });
-            }
+            return NoContent();
         }
 
-        // DELETE: api/Citas/5
+        // ===================== CAMBIAR ESTADO =====================
+        [HttpPut("estado")]
+        public async Task<IActionResult> CambiarEstado([FromBody] CambiarEstadoDto dto)
+        {
+            var ok = await _service.CambiarEstado(dto.IdCita, dto.NuevoEstado);
+
+            if (!ok)
+                return NotFound();
+
+            return NoContent();
+        }
+
+        // ===================== ELIMINAR =====================
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCita(int id)
         {
-            try
-            {
-                var ok = await _service.EliminarCita(id);
+            var ok = await _service.EliminarCita(id);
 
-                if (!ok)
-                    return NotFound(new { mensaje = "Cita no encontrada" });
+            if (!ok)
+                return NotFound();
 
-                return NoContent();
-            }
-            catch
-            {
-                return BadRequest(new { mensaje = "Ocurrió un error al eliminar la cita. Intenta nuevamente." });
-            }
+            return NoContent();
         }
+    }
+
+    public class CambiarEstadoDto
+    {
+        public int IdCita { get; set; }
+        public string NuevoEstado { get; set; } = "";
     }
 }

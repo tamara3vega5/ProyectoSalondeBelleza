@@ -15,6 +15,7 @@ namespace Salon_Api.Controllers
             _authService = authService;
         }
 
+        // POST: api/Auth/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
@@ -25,21 +26,23 @@ namespace Salon_Api.Controllers
                 if (cliente == null)
                     return Unauthorized(new { mensaje = "Correo o contraseña incorrectos" });
 
+                // Construimos el DTO de respuesta
+                var response = new LoginResponseDto
+                {
+                    IdCliente = cliente.IdCliente,
+                    Nombre = cliente.Nombre,
+                    Rol = cliente.Rol ?? "cliente",   // por si viene null
+                    Token = "" // si luego implementas JWT, aquí se agrega
+                };
+
                 return Ok(new
                 {
                     mensaje = "Inicio de sesión exitoso",
-                    cliente = new
-                    {
-                        cliente.IdCliente,
-                        cliente.Nombre,
-                        cliente.Correo,
-                        cliente.Telefono
-                    }
+                    usuario = response
                 });
             }
             catch (Exception)
             {
-                // Mensaje genérico para el usuario
                 return BadRequest(new { mensaje = "Ocurrió un error al intentar iniciar sesión." });
             }
         }

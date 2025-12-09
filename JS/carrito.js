@@ -1,176 +1,198 @@
-// ===============================
-//   CARGAR CARRITO DESDE STORAGE
-// ===============================
-let carrito = JSON.parse(localStorage.getItem("carrito")) || {};
+// =======================================================
+// carrito.js — Versión Final Integrada con API
+// =======================================================
 
+const API_PRODUCTOS = "https://localhost:7024/api/Productos";
+const API_VENTAS = "https://localhost:7024/api/Ventas";
 
-// ===============================
-//   VALIDAR CARRITO VIEJO (FIX ERROR cantidad)
-// ===============================
-let formatoInvalido = false;
+// Estructura básica del carrito
+let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-for (const key in carrito) {
-    let item = carrito[key];
+// ================================
+// 1. Cargar productos al iniciar
+// ================================
+document.addEventListener("DOMContentLoaded", () => {
+    cargarProductos();
+    mostrarCarrito();
+});
 
-    // Si el dato no es OBJETO → está en formato viejo (por ej: "Servicio": 2)
-    if (typeof item !== "object" || item === null) {
-        formatoInvalido = true;
-        break;
-    }
+async function cargarProductos() {
+    const contenedor = document.getElementById("lista-productos");
 
-    // Si falta precio o cantidad → también es inválido
-    if (!item.hasOwnProperty("precio") || !item.hasOwnProperty("cantidad")) {
-        formatoInvalido = true;
-        break;
+    try {
+        const res = await fetch(API_PRODUCTOS);
+        const productos = await res.json();
+
+        contenedor.innerHTML = "";
+
+        productos.forEach(p => {
+            contenedor.innerHTML += `
+                <div class="producto-item">
+                    <h3>${p.nombreProducto}</h3>
+                    <p>${p.descripcion}</p>
+                    <strong>$${p.precio}</strong><br>
+
+                    <button onclick="agregarAlCarrito(${p.idProducto}, '${p.nombreProducto}', ${p.precio})"
+                        class="btn-agregar">
+                        Agregar al carrito
+                    </button>
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        console.error("Error cargando productos:", error);
     }
 }
 
-if (formatoInvalido) {
-    console.warn("🧹 Carrito viejo detectado → limpiando...");
-    carrito = {};
-    localStorage.setItem("carrito", JSON.stringify(carrito));
-}
+// ================================
+// 2. Agregar producto al carrito
+// ================================
+window.agregarAlCarrito = function (id, nombre, precio) {
 
+    let item = carrito.find(p => p.id === id);
 
-// ===============================
-//   ACTUALIZAR CONTADOR NAVBAR
-// ===============================
-function actualizarContador() {
+    if (item) {
+        item.cantidad++;
+        item.subtotal = item.cantidad * item.precio;
+    } else {
+        carrito.push({
+            id,
+            nombre,
+            precio,
+            cantidad: 1,
+            subtotal: precio
+        });
+    }
+
+    guardarCarrito();
+    mostrarCarrito();
+};
+
+// ================================
+// 3. Mostrar carrito en pantalla
+// ================================
+function mostrarCarrito() {
+    const tabla = document.getElementById("carrito-body");
+    const totalSpan = document.getElementById("total");
+
+    tabla.innerHTML = "";
+
     let total = 0;
 
-    for (const key in carrito) {
-        if (carrito[key] && typeof carrito[key].cantidad === "number") {
-            total += carrito[key].cantidad;
-        }
-    }
+    carrito.forEach((item, index) => {
+        total += item.subtotal;
 
-    const badge = document.getElementById("cart-count");
-    if (badge) badge.textContent = total;
+        tabla.innerHTML += `
+            <tr>
+                <td>${item.nombre}</td>
+                <td>$${item.precio}</td>
+                <td>${item.cantidad}</td>
+                <td>$${item.subtotal}</td>
+                <td>
+                    <button onclick="eliminarItem(${index})" class="btn-eliminar">X</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    totalSpan.innerText = "$" + total.toFixed(2);
 }
 
-actualizarContador();
+// ================================
+// 4. Eliminar un producto del carrito
+// ================================
+window.eliminarItem = function (index) {
+    carrito.splice(index, 1);
+    guardarCarrito();
+    mostrarCarrito();
+};
 
-
-// ===============================
-//   GUARDAR CARRITO
-// ===============================
+// ================================
+// 5. Guardar carrito en localStorage
+// ================================
 function guardarCarrito() {
     localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
+// ================================
+// 6. Finalizar compra (Registrar Venta + Detalle)
+// ================================
+document.getElementById("btn-comprar").addEventListener("click", async () => {
 
-// ===============================
-//   SINCRONIZAR CANTIDADES EN LAS CARDS
-// ===============================
-function sincronizarServicios() {
-    const displays = document.querySelectorAll(".qty-display");
-
-    displays.forEach(display => {
-        let nombre = display.dataset.nombre;
-
-        display.textContent = carrito[nombre]
-            ? carrito[nombre].cantidad
-            : "0";
-    });
-}
-document.addEventListener("DOMContentLoaded", sincronizarServicios);
-
-
-// ===============================
-//   AGREGAR PRODUCTO
-// ===============================
-function agregarProducto(nombre, precio) {
-    if (!carrito[nombre]) {
-        carrito[nombre] = { cantidad: 1, precio: precio };
-    } else {
-        carrito[nombre].cantidad++;
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (!usuario) {
+        alert("Debes iniciar sesión para comprar.");
+        return;
     }
 
+    if (carrito.length === 0) {
+        alert("El carrito está vacío.");
+        return;
+    }
+
+    // Calcular total
+    let total = carrito.reduce((sum, item) => sum + item.subtotal, 0);
+
+    // -----------------------------
+    // 1. Registrar venta en API
+    // -----------------------------
+    const venta = {
+        idCliente: usuario.idCliente,
+        total: total
+    };
+
+    let ventaId = null;
+
+    try {
+        const resVenta = await fetch(API_VENTAS, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(venta)
+        });
+
+        if (!resVenta.ok) {
+            alert("No se pudo registrar la venta.");
+            return;
+        }
+
+        const dataVenta = await resVenta.json();
+        ventaId = dataVenta.idVenta;
+
+    } catch (error) {
+        console.error("Error registrando venta:", error);
+        alert("Error conectando con el servidor.");
+        return;
+    }
+
+    // -----------------------------
+    // 2. Registrar detalle venta
+    // -----------------------------
+    for (const item of carrito) {
+
+        const detalle = {
+            idVenta: ventaId,
+            idProducto: item.id,
+            cantidad: item.cantidad,
+            subtotal: item.subtotal
+        };
+
+        try {
+            await fetch("https://localhost:7024/api/DetalleVenta", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(detalle)
+            });
+
+        } catch (error) {
+            console.error("Error registrando detalle:", error);
+        }
+    }
+
+    // Vaciar carrito
+    carrito = [];
     guardarCarrito();
-    actualizarContador();
-    sincronizarServicios();
-    cargarCarritoEnPagina();
-}
+    mostrarCarrito();
 
-
-// ===============================
-//   QUITAR PRODUCTO
-// ===============================
-function quitarProducto(nombre) {
-    if (!carrito[nombre]) return;
-
-    carrito[nombre].cantidad--;
-
-    if (carrito[nombre].cantidad <= 0) {
-        delete carrito[nombre];
-    }
-
-    guardarCarrito();
-    actualizarContador();
-    sincronizarServicios();
-    cargarCarritoEnPagina();
-}
-
-
-// ===============================
-//   LISTENERS GLOBALES (+ y -)
-// ===============================
-document.addEventListener("click", function (e) {
-
-    if (e.target.classList.contains("plus")) {
-        const nombre = e.target.dataset.nombre;
-        const precio = parseFloat(e.target.dataset.precio);
-        agregarProducto(nombre, precio);
-    }
-
-    if (e.target.classList.contains("minus")) {
-        const nombre = e.target.dataset.nombre;
-        quitarProducto(nombre);
-    }
-
-    if (e.target.id === "clear-cart") {
-        carrito = {};
-        guardarCarrito();
-        actualizarContador();
-        cargarCarritoEnPagina();
-    }
+    alert("Compra realizada con éxito.");
 });
-
-
-// ===============================
-//   MOSTRAR CARRITO EN carrito.html
-// ===============================
-function cargarCarritoEnPagina() {
-    const container = document.getElementById("cart-items");
-    const totalText = document.getElementById("cart-total");
-
-    if (!container) return;
-
-    container.innerHTML = ""; 
-
-    let total = 0;
-
-    for (let nombre in carrito) {
-        const item = carrito[nombre];
-
-        total += item.precio * item.cantidad;
-
-        container.innerHTML += `
-            <div class="cart-item">
-                <span class="cart-item-name">${nombre}</span>
-
-                <div class="cart-item-controls">
-                    <button class="minus" data-nombre="${nombre}">−</button>
-                    <span>${item.cantidad}</span>
-                    <button class="plus" data-nombre="${nombre}" data-precio="${item.precio}">+</button>
-                </div>
-
-                <span class="cart-item-price">$${(item.precio * item.cantidad).toFixed(2)}</span>
-            </div>
-        `;
-    }
-
-    totalText.textContent = `$${total.toFixed(2)}`;
-}
-
-document.addEventListener("DOMContentLoaded", cargarCarritoEnPagina);

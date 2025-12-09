@@ -1,42 +1,55 @@
-/* ===========================================================
-   LOGIN – VERSIÓN FINAL
-   -----------------------------------------------------------
-   Usa la lista real en localStorage["usuarios"]
-   Conserva tus usuarios y sesión normalmente
-   =========================================================== */
+const API = "https://localhost:7024/api/Auth/login";
 
-document.getElementById("login-form")?.addEventListener("submit", function (e) {
-  e.preventDefault();
+// ---------------------------
+// CAPTURAR BOTÓN DE LOGIN
+// ---------------------------
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const email = document.querySelector("#login-form input[type=email]").value.trim();
-  const pass  = document.querySelector("#login-form input[type=password]").value.trim();
+    const correo = document.getElementById("correo").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-  const user = usuarios.find(u => u.email === email && u.password === pass);
+    if (!correo || !password) {
+        alert("Por favor completa todos los campos.");
+        return;
+    }
 
-  if (!user) {
-    mostrarError("Correo o contraseña incorrectos.");
-    return;
-  }
+    try {
+        const res = await fetch(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ correo, password })
+        });
 
-  localStorage.setItem("usuarioConectado", JSON.stringify(user));
+        if (!res.ok) {
+            alert("Correo o contraseña incorrectos.");
+            return;
+        }
 
-  if (user.rol === "admin") {
-    window.location.href = "admin.html";
-  } else {
-    window.location.href = "index.html";
-  }
+        const data = await res.json();
+        const cliente = data.cliente;
+
+        // ---------------------------
+        // GUARDAR SESIÓN EN LOCALSTORAGE
+        // ---------------------------
+        localStorage.setItem("usuario", JSON.stringify({
+            idCliente: cliente.idCliente,
+            nombre: cliente.nombre,
+            correo: cliente.correo,
+            rol: cliente.rol || "cliente"
+        }));
+
+        // ---------------------------
+        // REDIRECCIONAR SEGÚN ROL
+        // ---------------------------
+        if (cliente.rol === "admin") {
+            window.location.href = "admin.html";
+        } else {
+            window.location.href = "index.html";
+        }
+
+    } catch (error) {
+        console.error("Error en login:", error);
+        alert("Error al conectar con el servidor.");
+    }
 });
-
-function mostrarError(mensaje) {
-  let errorBox = document.querySelector(".login-error");
-  if (!errorBox) {
-    errorBox = document.createElement("p");
-    errorBox.className = "login-error";
-    errorBox.style.color = "#d9534f";
-    errorBox.style.fontWeight = "700";
-    errorBox.style.marginTop = "10px";
-    document.getElementById("login-form").appendChild(errorBox);
-  }
-  errorBox.textContent = mensaje;
-}

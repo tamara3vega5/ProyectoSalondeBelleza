@@ -1,22 +1,23 @@
----------------------------------------------------------
+-------------------------------------------------------
 
--- CREAR BASE DE DATOS
+--  CREAR BASE DE DATOS
 
----------------------------------------------------------
+-------------------------------------------------------
 
-CREATE DATABASE MatchaaSalon;
+CREATE DATABASE MatchaSalon;
 
 GO
 
-USE MatchaaSalon;
+USE MatchaSalon;
 
 GO
  
----------------------------------------------------------
+ 
+-------------------------------------------------------
 
--- TABLA CLIENTES (incluye PasswordHash y Rol)
+--  TABLA CLIENTES
 
----------------------------------------------------------
+-------------------------------------------------------
 
 CREATE TABLE Clientes (
 
@@ -27,22 +28,27 @@ CREATE TABLE Clientes (
     Telefono NVARCHAR(20),
 
     Correo NVARCHAR(100),
+ 
+    -- NUEVO: HASH REAL (NO CONTRASEÑA EN TEXTO PLANO)
 
     PasswordHash NVARCHAR(255) NOT NULL,
+ 
+    -- NUEVO: ROL PARA ADMINISTRADOR O CLIENTE
 
-    FechaRegistro DATETIME DEFAULT GETDATE(),
-
-    Rol NVARCHAR(20) DEFAULT 'cliente'
+    Rol NVARCHAR(50) NOT NULL DEFAULT 'cliente',
+ 
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE()
 
 );
 
 GO
  
----------------------------------------------------------
+ 
+-------------------------------------------------------
 
--- TABLA ESTILISTAS
+--  TABLA ESTILISTAS
 
----------------------------------------------------------
+-------------------------------------------------------
 
 CREATE TABLE Estilistas (
 
@@ -62,11 +68,12 @@ CREATE TABLE Estilistas (
 
 GO
  
----------------------------------------------------------
+ 
+-------------------------------------------------------
 
--- TABLA SERVICIOS
+--  TABLA SERVICIOS
 
----------------------------------------------------------
+-------------------------------------------------------
 
 CREATE TABLE Servicios (
 
@@ -84,11 +91,12 @@ CREATE TABLE Servicios (
 
 GO
  
----------------------------------------------------------
+ 
+-------------------------------------------------------
 
--- TABLA CITAS
+--  TABLA CITAS
 
----------------------------------------------------------
+-------------------------------------------------------
 
 CREATE TABLE Citas (
 
@@ -114,11 +122,12 @@ CREATE TABLE Citas (
 
 GO
  
----------------------------------------------------------
+ 
+-------------------------------------------------------
 
--- TABLA PRODUCTOS (mantengo EXACTAMENTE LOS QUE PEDISTE)
+--  TABLA PRODUCTOS
 
----------------------------------------------------------
+-------------------------------------------------------
 
 CREATE TABLE Productos (
 
@@ -136,11 +145,12 @@ CREATE TABLE Productos (
 
 GO
  
----------------------------------------------------------
+ 
+-------------------------------------------------------
 
--- TABLA VENTAS
+--  TABLA VENTAS
 
----------------------------------------------------------
+-------------------------------------------------------
 
 CREATE TABLE Ventas (
 
@@ -148,21 +158,22 @@ CREATE TABLE Ventas (
 
     IdCliente INT NOT NULL,
 
-    Fecha DATETIME DEFAULT GETDATE(),
+    Fecha DATETIME NOT NULL DEFAULT GETDATE(),
 
     Total DECIMAL(10,2) NOT NULL,
- 
+
     FOREIGN KEY (IdCliente) REFERENCES Clientes(IdCliente)
 
 );
 
 GO
  
----------------------------------------------------------
+ 
+-------------------------------------------------------
 
--- TABLA DETALLE VENTAS
+--  TABLA DETALLE VENTA
 
----------------------------------------------------------
+-------------------------------------------------------
 
 CREATE TABLE DetalleVenta (
 
@@ -176,7 +187,7 @@ CREATE TABLE DetalleVenta (
 
     Subtotal DECIMAL(10,2) NOT NULL,
  
-    FOREIGN KEY (IdVenta) REFERENCES Ventas(IdVenta) ON DELETE CASCADE,
+    FOREIGN KEY (IdVenta) REFERENCES Ventas(IdVenta),
 
     FOREIGN KEY (IdProducto) REFERENCES Productos(IdProducto)
 
@@ -184,143 +195,12 @@ CREATE TABLE DetalleVenta (
 
 GO
  
----------------------------------------------------------
-
--- PROCEDIMIENTOS ALMACENADOS
-
----------------------------------------------------------
  
--- Registrar una nueva cita
+-------------------------------------------------------
 
-CREATE PROCEDURE sp_RegistrarCita
+-- INSERT DE ESTILISTAS
 
-    @IdCliente INT,
-
-    @IdEstilista INT,
-
-    @IdServicio INT,
-
-    @Fecha DATETIME
-
-AS
-
-BEGIN
-
-    IF EXISTS (SELECT 1 FROM Citas WHERE IdEstilista = @IdEstilista AND Fecha = @Fecha)
-
-    BEGIN
-
-        RAISERROR('El horario no está disponible.', 16, 1);
-
-        RETURN;
-
-    END
- 
-    INSERT INTO Citas (IdCliente, IdEstilista, IdServicio, Fecha, Estado)
-
-    VALUES (@IdCliente, @IdEstilista, @IdServicio, @Fecha, 'Pendiente');
-
-END;
-
-GO
- 
--- Actualizar estado cita
-
-CREATE PROCEDURE sp_ActualizarEstadoCita
-
-    @IdCita INT,
-
-    @NuevoEstado NVARCHAR(50)
-
-AS
-
-BEGIN
-
-    UPDATE Citas
-
-    SET Estado = @NuevoEstado
-
-    WHERE IdCita = @IdCita;
-
-END;
-
-GO
- 
--- Registrar venta
-
-CREATE PROCEDURE sp_RegistrarVenta
-
-    @IdCliente INT,
-
-    @Total DECIMAL(10,2)
-
-AS
-
-BEGIN
-
-    INSERT INTO Ventas (IdCliente, Fecha, Total)
-
-    VALUES (@IdCliente, GETDATE(), @Total);
-
-END;
-
-GO
- 
--- Historial de cliente
-
-CREATE PROCEDURE sp_ConsultarHistorialCliente
-
-    @IdCliente INT
-
-AS
-
-BEGIN
-
-    SELECT C.IdCita, S.NombreServicio, C.Fecha, C.Estado, E.Nombre AS Estilista
-
-    FROM Citas C
-
-    INNER JOIN Servicios S ON C.IdServicio = S.IdServicio
-
-    INNER JOIN Estilistas E ON C.IdEstilista = E.IdEstilista
-
-    WHERE C.IdCliente = @IdCliente
-
-    ORDER BY C.Fecha DESC;
-
-END;
-
-GO
- 
--- Verificar disponibilidad
-
-CREATE PROCEDURE sp_VerificarDisponibilidad
-
-    @IdEstilista INT,
-
-    @Fecha DATETIME
-
-AS
-
-BEGIN
-
-    IF EXISTS (SELECT 1 FROM Citas WHERE IdEstilista = @IdEstilista AND Fecha = @Fecha)
-
-        SELECT 'Ocupado' AS Estado;
-
-    ELSE
-
-        SELECT 'Disponible' AS Estado;
-
-END;
-
-GO
- 
----------------------------------------------------------
-
--- INSERTS DE ESTILISTAS (LOS QUE ME DISTE Y NO AGREGO MÁS)
-
----------------------------------------------------------
+-------------------------------------------------------
 
 INSERT INTO Estilistas (Nombre, Especialidad, Telefono, Correo)
 
@@ -340,31 +220,12 @@ VALUES
 
 GO
  
----------------------------------------------------------
-
--- INSERTS DE SERVICIOS BASE (MANTENGO SOLO LOS ORIGINALES)
-
----------------------------------------------------------
-
-INSERT INTO Servicios (NombreServicio, Precio, DuracionMin, Descripcion)
-
-VALUES
-
-('Acrílicas', 25.00, 60, 'Uñas acrílicas completas'),
-
-('Corte de Cabello', 10.00, 30, 'Corte básico y estilizado'),
-
-('Facial Limpieza', 20.00, 45, 'Tratamiento de limpieza profunda'),
-
-('Maquillaje Profesional', 35.00, 60, 'Maquillaje completo para eventos');
-
-GO
  
----------------------------------------------------------
+-------------------------------------------------------
 
--- INSERTS DE PRODUCTOS (SOLO LOS QUE ME ENVIASTE)
+-- INSERT DE PRODUCTOS PRINCIPALES
 
----------------------------------------------------------
+-------------------------------------------------------
 
 INSERT INTO Productos (NombreProducto, Precio, Stock, Descripcion)
 
@@ -385,3 +246,84 @@ VALUES
 ('Secadora', 39.99, 6, 'Secadora profesional de alta velocidad');
 
 GO
+ 
+ 
+-------------------------------------------------------
+
+-- INSERT ADMINISTRADOR
+
+-------------------------------------------------------
+
+INSERT INTO Clientes (Nombre, Telefono, Correo, PasswordHash, Rol)
+
+VALUES ('Administrador', '0000-0000', 'admin@matcha.com', '1234', 'admin');
+
+GO
+ 
+ 
+-------------------------------------------------------
+
+-- PROCEDIMIENTO: REGISTRAR CITA
+
+-------------------------------------------------------
+
+CREATE PROCEDURE sp_RegistrarCita
+
+    @IdCliente INT,
+
+    @IdEstilista INT,
+
+    @IdServicio INT,
+
+    @Fecha DATETIME
+
+AS
+
+BEGIN
+
+    IF EXISTS (SELECT 1 FROM Citas WHERE IdEstilista = @IdEstilista AND Fecha = @Fecha)
+
+    BEGIN
+
+        RAISERROR('El estilista ya tiene una cita en esa fecha y hora.', 16, 1);
+
+        RETURN;
+
+    END
+ 
+    INSERT INTO Citas (IdCliente, IdEstilista, IdServicio, Fecha, Estado)
+
+    VALUES (@IdCliente, @IdEstilista, @IdServicio, @Fecha, 'Pendiente');
+
+END;
+
+GO
+ 
+ 
+-------------------------------------------------------
+
+-- PROCEDIMIENTO: ACTUALIZAR ESTADO DE CITA
+
+-------------------------------------------------------
+
+CREATE PROCEDURE sp_ActualizarEstadoCita
+
+    @IdCita INT,
+
+    @NuevoEstado NVARCHAR(50)
+
+AS
+
+BEGIN
+
+    UPDATE Citas
+
+    SET Estado = @NuevoEstado
+
+    WHERE IdCita = @IdCita;
+
+END;
+
+GO
+
+ 

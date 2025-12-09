@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Salon_Api.Data;
-using Salon_Api.DTO;
 using Salon_Api.Modelo;
 using Salon_Api.Services.Interfaces;
-using BCrypt.Net;
 
 namespace Salon_Api.Services
 {
@@ -16,67 +14,128 @@ namespace Salon_Api.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Clientes>> ObtenerClientes()
+        // ============================================================
+        // Obtener todos los clientes
+        // ============================================================
+        public async Task<List<Clientes>> ObtenerClientes()
         {
             return await _context.Clientes.ToListAsync();
         }
 
-        public async Task<Clientes?> ObtenerClientePorId(int id)
+        // ============================================================
+        // Obtener cliente por ID
+        // ============================================================
+        public async Task<Clientes?> ObtenerCliente(int id)
         {
             return await _context.Clientes.FindAsync(id);
         }
 
-        // ✅ Crear Cliente con DTO
-        public async Task<Clientes> CrearCliente(ClienteCreateDto dto)
+        // ============================================================
+        // Crear cliente
+        // ============================================================
+        public async Task<Clientes> CrearCliente(Clientes c)
         {
-            var nuevoCliente = new Clientes
-            {
-                Nombre = dto.Nombre,
-                Telefono = dto.Telefono,
-                Correo = dto.Correo,
-                FechaRegistro = dto.FechaRegistro,
+            // Normalizar correo
+            c.Correo = c.Correo?.Trim().ToLower();
 
-                // 👇 Hashear la contraseña ANTES de guardar
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-            };
+            // Validar duplicación
+            bool existeCorreo = await _context.Clientes.AnyAsync(x => x.Correo == c.Correo);
+            if (existeCorreo)
+                throw new Exception("El correo ya está registrado.");
 
-            _context.Clientes.Add(nuevoCliente);
+            _context.Clientes.Add(c);
             await _context.SaveChangesAsync();
-
-            return nuevoCliente;
+            return c;
         }
 
-
-        // ✅ Actualizar Cliente con DTO
-        public async Task<Clientes?> ActualizarCliente(int id, ClienteCreateDto dto)
+        // ============================================================
+        // Actualizar cliente
+        // ============================================================
+        public async Task<bool> ActualizarCliente(int id, Clientes c)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
-
-            if (cliente == null)
-                return null;
-
-            cliente.Nombre = dto.Nombre;
-            cliente.Telefono = dto.Telefono;
-            cliente.Correo = dto.Correo;
-            cliente.FechaRegistro = dto.FechaRegistro;
-
-            await _context.SaveChangesAsync();
-
-            return cliente;
-        }
-
-
-        public async Task<bool> EliminarCliente(int id)
-        {
-            var cliente = await _context.Clientes.FindAsync(id);
-
-            if (cliente == null)
+            var existe = await _context.Clientes.FindAsync(id);
+            if (existe == null)
                 return false;
 
-            _context.Clientes.Remove(cliente);
+            c.Correo = c.Correo?.Trim().ToLower();
+
+            // ¿El nuevo correo está en uso por OTRO cliente?
+            if (!string.IsNullOrWhiteSpace(c.Correo) && c.Correo != existe.Correo)
+            {
+                bool correoEnUso = await _context.Clientes.AnyAsync(x => x.Correo == c.Correo);
+                if (correoEnUso)
+                    throw new Exception("El correo ya está siendo usado por otro usuario.");
+            }
+
+            // Actualizar campos
+            existe.Nombre = c.Nombre;
+            existe.Telefono = c.Telefono;
+            existe.Correo = c.Correo;
+
+            // actualizar rol si viene
+            if (!string.IsNullOrWhiteSpace(c.Rol))
+                existe.Rol = c.Rol.Trim().ToLower();
+
+            // actualizar contraseña si viene hash
+            if (!string.IsNullOrWhiteSpace(c.PasswordHash))
+                existe.PasswordHash = c.PasswordHash;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // ============================================================
+        // Eliminar cliente
+        // ============================================================
+        public async Task<bool> EliminarCliente(int id)
+        {
+            var existe = await _context.Clientes
+                .Include(c => c.Ventas)
+                .Include(c => c.Citas)
+                .FirstOrDefaultAsync(c => c.IdCliente == id);
+
+            if (existe == null)
+                return false;
+
+            // Evitar romper relaciones
+            if (existe.Ventas?.Any() == true)
+                throw new Exception("No se puede eliminar un cliente con ventas registradas.");
+
+            if (existe.Citas?.Any() == true)
+                throw new Exception("No se puede eliminar un cliente con citas activas.");
+
+            _context.Clientes.Remove(existe);
             await _context.SaveChangesAsync();
 
             return true;
         }
+
+        // ============================================================
+        // Cambiar contraseña
+        // ============================================================
+        public async Task<bool> CambiarPassword(int id, string newHash)
+        {
+            var cliente = await _context.Clientes.FindAsync(id);
+            if (cliente == null) return false;
+
+            cliente.PasswordHash = newHash;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // ============================================================
+        // Cambiar rol (admin / user)
+        // ============================================================
+        public async Task<bool> CambiarRol(int id, string nuevoRol)
+        {
+            var cliente = await _context.Clientes.FindAsync(id);
+            if (cliente == null) return false;
+
+            cliente.Rol = nuevoRol.Trim().ToLower();
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
+
+

@@ -1,11 +1,12 @@
-﻿using Salon_Api.DTO;
+﻿using Salon_Api.Modelo;
 
 namespace Salon_Api.Services.Interfaces
 {
     public interface IVentasService
     {
-        Task<VentaDto> CrearVenta(VentaCreateDto dto);
-        Task<IEnumerable<VentaDto>> ObtenerVentas();
-        Task<VentaDto?> ObtenerVenta(int id);
+        Task<List<Ventas>> ObtenerVentas();
+        Task<Ventas?> ObtenerVenta(int id);
+        Task<Ventas> CrearVenta(Ventas venta, List<DetalleVenta> detalles);
+        Task<bool> EliminarVenta(int id);
     }
 }

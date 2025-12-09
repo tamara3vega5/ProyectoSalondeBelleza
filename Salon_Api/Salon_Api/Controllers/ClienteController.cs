@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Salon_Api.Modelo;
 using Salon_Api.Services.Interfaces;
 using Salon_Api.DTO;
+using Salon_Api.Modelo;
 
 namespace Salon_Api.Controllers
 {
@@ -9,93 +9,141 @@ namespace Salon_Api.Controllers
     [ApiController]
     public class ClientesController : ControllerBase
     {
-        private readonly IClientesService _clientesService;
+        private readonly IClientesService _service;
 
-        public ClientesController(IClientesService clientesService)
+        public ClientesController(IClientesService service)
         {
-            _clientesService = clientesService;
+            _service = service;
         }
 
+        // ============================================================
+        // GET TODOS
+        // ============================================================
         [HttpGet]
-        public async Task<IActionResult> GetClientes()
+        public async Task<ActionResult<IEnumerable<ClienteReadDto>>> GetClientes()
         {
-            try
+            var data = await _service.ObtenerClientes();
+
+            return Ok(data.Select(c => new ClienteReadDto
             {
-                var clientes = await _clientesService.ObtenerClientes();
-                return Ok(clientes);
-            }
-            catch
-            {
-                return BadRequest(new { mensaje = "Ocurrió un error al obtener los clientes. Intenta nuevamente." });
-            }
+                IdCliente = c.IdCliente,
+                Nombre = c.Nombre,
+                Telefono = c.Telefono,
+                Correo = c.Correo,
+                Rol = c.Rol
+            }));
         }
 
+        // ============================================================
+        // GET POR ID
+        // ============================================================
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCliente(int id)
+        public async Task<ActionResult<ClienteReadDto>> GetCliente(int id)
         {
-            try
-            {
-                var cliente = await _clientesService.ObtenerClientePorId(id);
-                if (cliente == null)
-                    return NotFound(new { mensaje = "Cliente no encontrado." });
+            var c = await _service.ObtenerCliente(id);
+            if (c == null) return NotFound();
 
-                return Ok(cliente);
-            }
-            catch
+            return Ok(new ClienteReadDto
             {
-                return BadRequest(new { mensaje = "Ocurrió un error al obtener el cliente. Intenta nuevamente." });
-            }
+                IdCliente = c.IdCliente,
+                Nombre = c.Nombre,
+                Telefono = c.Telefono,
+                Correo = c.Correo,
+                Rol = c.Rol
+            });
         }
 
+        // ============================================================
+        // POST: REGISTRAR CLIENTE
+        // ============================================================
         [HttpPost]
-        public async Task<IActionResult> CrearCliente([FromBody] ClienteCreateDto dto)
+        public async Task<ActionResult> PostCliente(ClienteCreateDto dto)
         {
-            try
+            string hash = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena);
+
+            var nuevo = new Clientes
             {
-                var clienteCreado = await _clientesService.CrearCliente(dto);
-                return CreatedAtAction(nameof(GetCliente),
-                    new { id = clienteCreado.IdCliente },
-                    clienteCreado);
-            }
-            catch
-            {
-                return BadRequest(new { mensaje = "Ocurrió un error al crear el cliente. Intenta nuevamente." });
-            }
+                Nombre = dto.Nombre,
+                Telefono = dto.Telefono,
+                Correo = dto.Correo?.Trim().ToLower(),
+                PasswordHash = hash,
+                Rol = dto.Rol
+            };
+
+            var creado = await _service.CrearCliente(nuevo);
+
+            return CreatedAtAction(nameof(GetCliente), new { id = creado.IdCliente }, creado);
         }
 
+        // ============================================================
+        // PUT: ACTUALIZAR CLIENTE
+        // ============================================================
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarCliente(int id, [FromBody] ClienteCreateDto dto)
+        public async Task<ActionResult> PutCliente(int id, ClienteUpdateDto dto)
+        {
+            string? newHash = null;
+
+            if (!string.IsNullOrWhiteSpace(dto.NuevaContrasena))
+                newHash = BCrypt.Net.BCrypt.HashPassword(dto.NuevaContrasena);
+
+            var nuevo = new Clientes
+            {
+                Nombre = dto.Nombre,
+                Telefono = dto.Telefono,
+                Correo = dto.Correo?.Trim().ToLower(),
+                PasswordHash = newHash ?? "",
+                Rol = dto.Rol ?? ""
+            };
+
+            var ok = await _service.ActualizarCliente(id, nuevo);
+
+            if (!ok) return NotFound();
+            return NoContent();
+        }
+
+        // ============================================================
+        // DELETE
+        // ============================================================
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteCliente(int id)
         {
             try
             {
-                var clienteActualizado = await _clientesService.ActualizarCliente(id, dto);
-                if (clienteActualizado == null)
-                    return NotFound(new { mensaje = "Cliente no encontrado." });
+                var ok = await _service.EliminarCliente(id);
+                if (!ok) return NotFound();
 
                 return NoContent();
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(new { mensaje = "Ocurrió un error al actualizar el cliente. Intenta nuevamente." });
+                return BadRequest(new { mensaje = ex.Message });
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> EliminarCliente(int id)
+        // ============================================================
+        // CAMBIAR CONTRASEÑA
+        // ============================================================
+        [HttpPut("{id}/password")]
+        public async Task<IActionResult> CambiarPassword(int id, [FromBody] string nueva)
         {
-            try
-            {
-                var result = await _clientesService.EliminarCliente(id);
-                if (!result)
-                    return NotFound(new { mensaje = "Cliente no encontrado." });
+            string hash = BCrypt.Net.BCrypt.HashPassword(nueva);
 
-                return NoContent();
-            }
-            catch
-            {
-                return BadRequest(new { mensaje = "Ocurrió un error al eliminar el cliente. Intenta nuevamente." });
-            }
+            var ok = await _service.CambiarPassword(id, hash);
+            if (!ok) return NotFound();
+
+            return NoContent();
+        }
+
+        // ============================================================
+        // CAMBIAR ROL (admin / cliente)
+        // ============================================================
+        [HttpPut("{id}/rol")]
+        public async Task<IActionResult> CambiarRol(int id, [FromBody] string rol)
+        {
+            var ok = await _service.CambiarRol(id, rol);
+            if (!ok) return NotFound();
+
+            return NoContent();
         }
     }
 }
-

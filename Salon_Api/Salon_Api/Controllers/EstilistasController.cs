@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Salon_Api.Data;
+using Salon_Api.Services.Interfaces;
+using Salon_Api.DTO;
 using Salon_Api.Modelo;
 
 namespace Salon_Api.Controllers
@@ -9,80 +9,96 @@ namespace Salon_Api.Controllers
     [ApiController]
     public class EstilistasController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IEstilistasService _service;
 
-        public EstilistasController(ApplicationDbContext context)
+        public EstilistasController(IEstilistasService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // ============================================
         // GET: api/Estilistas
-        // ============================================
         [HttpGet]
-        public async Task<IActionResult> GetEstilistas()
+        public async Task<ActionResult<IEnumerable<EstilistaReadDto>>> GetEstilistas()
         {
-            var estilistas = await _context.Estilistas.ToListAsync();
-            return Ok(estilistas);
+            var datos = await _service.ObtenerEstilistas();
+
+            var lista = datos.Select(e => new EstilistaReadDto
+            {
+                IdEstilista = e.IdEstilista,
+                Nombre = e.Nombre,
+                Especialidad = e.Especialidad,
+                Telefono = e.Telefono,
+                Correo = e.Correo
+            });
+
+            return Ok(lista);
         }
 
-        // ============================================
-        // GET: api/Estilistas/{id}
-        // ============================================
+        // GET: api/Estilistas/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetEstilista(int id)
+        public async Task<ActionResult<EstilistaReadDto>> GetEstilista(int id)
         {
-            var estilista = await _context.Estilistas.FindAsync(id);
-            if (estilista == null)
-                return NotFound(new { mensaje = "Estilista no encontrado" });
+            var e = await _service.ObtenerEstilista(id);
 
-            return Ok(estilista);
+            if (e == null)
+                return NotFound();
+
+            return Ok(new EstilistaReadDto
+            {
+                IdEstilista = e.IdEstilista,
+                Nombre = e.Nombre,
+                Especialidad = e.Especialidad,
+                Telefono = e.Telefono,
+                Correo = e.Correo
+            });
         }
 
-        // ============================================
-        // POST: api/Estilistas
-        // ============================================
+        // POST
         [HttpPost]
-        public async Task<IActionResult> CrearEstilista([FromBody] Estilistas dto)
+        public async Task<ActionResult> PostEstilista(EstilistaCreateDto dto)
         {
-            _context.Estilistas.Add(dto);
-            await _context.SaveChangesAsync();
+            var nuevo = new Estilistas
+            {
+                Nombre = dto.Nombre,
+                Especialidad = dto.Especialidad,
+                Telefono = dto.Telefono,
+                Correo = dto.Correo
+            };
 
-            return CreatedAtAction(nameof(GetEstilista), new { id = dto.IdEstilista }, dto);
+            var creado = await _service.CrearEstilista(nuevo);
+
+            return CreatedAtAction(nameof(GetEstilista), new { id = creado.IdEstilista }, creado);
         }
 
-        // ============================================
-        // PUT: api/Estilistas/{id}
-        // ============================================
+        // PUT
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarEstilista(int id, [FromBody] Estilistas dto)
+        public async Task<ActionResult> PutEstilista(int id, EstilistaUpdateDto dto)
         {
-            var estilista = await _context.Estilistas.FindAsync(id);
-            if (estilista == null)
-                return NotFound(new { mensaje = "Estilista no encontrado" });
+            var nuevo = new Estilistas
+            {
+                Nombre = dto.Nombre,
+                Especialidad = dto.Especialidad,
+                Telefono = dto.Telefono,
+                Correo = dto.Correo
+            };
 
-            estilista.Nombre = dto.Nombre;
-            estilista.Telefono = dto.Telefono;
-            estilista.Correo = dto.Correo;
-            estilista.Especialidad = dto.Especialidad;
-            estilista.Estado = dto.Estado;
+            var ok = await _service.ActualizarEstilista(id, nuevo);
 
-            await _context.SaveChangesAsync();
+            if (!ok)
+                return NotFound();
+
             return NoContent();
         }
 
-        // ============================================
-        // DELETE: api/Estilistas/{id}
-        // ============================================
+        // DELETE
         [HttpDelete("{id}")]
-        public async Task<IActionResult> EliminarEstilista(int id)
+        public async Task<ActionResult> DeleteEstilista(int id)
         {
-            var estilista = await _context.Estilistas.FindAsync(id);
-            if (estilista == null)
-                return NotFound(new { mensaje = "Estilista no encontrado" });
+            var ok = await _service.EliminarEstilista(id);
 
-            _context.Estilistas.Remove(estilista);
-            await _context.SaveChangesAsync();
+            if (!ok)
+                return NotFound();
+
             return NoContent();
         }
     }

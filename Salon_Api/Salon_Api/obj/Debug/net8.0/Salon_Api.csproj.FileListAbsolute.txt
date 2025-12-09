@@ -139,3 +139,6 @@ C:\Users\tamyl\OneDrive\Escritorio\Repositorio\API_MatchaSalon\Backend\Salon_Api
 C:\Users\tamyl\OneDrive\Escritorio\Repositorio\API_MatchaSalon\Backend\Salon_Api\Salon_Api\obj\Debug\net8.0\Salon_Api.pdb
 C:\Users\tamyl\OneDrive\Escritorio\Repositorio\API_MatchaSalon\Backend\Salon_Api\Salon_Api\obj\Debug\net8.0\Salon_Api.genruntimeconfig.cache
 C:\Users\tamyl\OneDrive\Escritorio\Repositorio\API_MatchaSalon\Backend\Salon_Api\Salon_Api\obj\Debug\net8.0\ref\Salon_Api.dll
+C:\Repositorios\ProyectoSalondeBelleza\Salon_Api\Salon_Api\obj\Debug\net8.0\Salon_Api.dll
+C:\Repositorios\ProyectoSalondeBelleza\Salon_Api\Salon_Api\obj\Debug\net8.0\refint\Salon_Api.dll
+C:\Repositorios\ProyectoSalondeBelleza\Salon_Api\Salon_Api\obj\Debug\net8.0\Salon_Api.pdb

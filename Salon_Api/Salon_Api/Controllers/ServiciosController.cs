@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Salon_Api.Data;
+using Salon_Api.Services.Interfaces;
+using Salon_Api.DTO;
 using Salon_Api.Modelo;
 
 namespace Salon_Api.Controllers
@@ -9,81 +9,152 @@ namespace Salon_Api.Controllers
     [ApiController]
     public class ServiciosController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IServiciosService _service;
 
-        public ServiciosController(ApplicationDbContext context)
+        public ServiciosController(IServiciosService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // ============================================
+        // ==========================================================
         // GET: api/Servicios
-        // ============================================
+        // ==========================================================
         [HttpGet]
-        public async Task<IActionResult> GetServicios()
+        public async Task<ActionResult<IEnumerable<ServicioReadDto>>> GetServicios()
         {
-            var servicios = await _context.Servicios.ToListAsync();
-            return Ok(servicios);
+            try
+            {
+                var datos = await _service.ObtenerServicios();
+
+                var lista = datos.Select(s => new ServicioReadDto
+                {
+                    IdServicio = s.IdServicio,
+                    NombreServicio = s.NombreServicio,
+                    Descripcion = s.Descripcion,
+                    DuracionMin = s.DuracionMin,
+                    Precio = s.Precio
+                });
+
+                return Ok(lista);
+            }
+            catch
+            {
+                return BadRequest(new { mensaje = "Error al obtener los servicios." });
+            }
         }
 
-        // ============================================
-        // GET: api/Servicios/{id}
-        // ============================================
+        // ==========================================================
+        // GET: api/Servicios/5
+        // ==========================================================
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetServicio(int id)
+        public async Task<ActionResult<ServicioReadDto>> GetServicio(int id)
         {
-            var servicio = await _context.Servicios.FindAsync(id);
-            if (servicio == null)
-                return NotFound(new { mensaje = "Servicio no encontrado" });
+            try
+            {
+                var s = await _service.ObtenerServicio(id);
+                if (s == null)
+                    return NotFound(new { mensaje = "Servicio no encontrado." });
 
-            return Ok(servicio);
+                return Ok(new ServicioReadDto
+                {
+                    IdServicio = s.IdServicio,
+                    NombreServicio = s.NombreServicio,
+                    Descripcion = s.Descripcion,
+                    DuracionMin = s.DuracionMin,
+                    Precio = s.Precio
+                });
+            }
+            catch
+            {
+                return BadRequest(new { mensaje = "Error al obtener el servicio." });
+            }
         }
 
-        // ============================================
+        // ==========================================================
         // POST: api/Servicios
-        // ============================================
+        // ==========================================================
         [HttpPost]
-        public async Task<IActionResult> CrearServicio([FromBody] Servicios dto)
+        public async Task<ActionResult<ServicioReadDto>> PostServicio([FromBody] ServicioCreateDto dto)
         {
-            _context.Servicios.Add(dto);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var servicio = new Servicios
+                {
+                    NombreServicio = dto.NombreServicio,
+                    Descripcion = dto.Descripcion,
+                    DuracionMin = dto.DuracionMin,
+                    Precio = dto.Precio
+                };
 
-            return CreatedAtAction(nameof(GetServicio), new { id = dto.IdServicio }, dto);
+                var creado = await _service.CrearServicio(servicio);
+
+                var readDto = new ServicioReadDto
+                {
+                    IdServicio = creado.IdServicio,
+                    NombreServicio = creado.NombreServicio,
+                    Descripcion = creado.Descripcion,
+                    DuracionMin = creado.DuracionMin,
+                    Precio = creado.Precio
+                };
+
+                return CreatedAtAction(nameof(GetServicio), new { id = creado.IdServicio }, readDto);
+            }
+            catch
+            {
+                return BadRequest(new { mensaje = "Error al crear el servicio." });
+            }
         }
 
-        // ============================================
-        // PUT: api/Servicios/{id}
-        // ============================================
+
+        // ==========================================================
+        // PUT: api/Servicios/5
+        // ==========================================================
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarServicio(int id, [FromBody] Servicios dto)
+        public async Task<IActionResult> PutServicio(int id, [FromBody] ServicioUpdateDto dto)
         {
-            var servicio = await _context.Servicios.FindAsync(id);
-            if (servicio == null)
-                return NotFound(new { mensaje = "Servicio no encontrado" });
+            try
+            {
+                var nuevo = new Servicios
+                {
+                    NombreServicio = dto.NombreServicio,
+                    Descripcion = dto.Descripcion,
+                    DuracionMin = dto.DuracionMin,
+                    Precio = dto.Precio
+                };
 
-            servicio.NombreServicio = dto.NombreServicio;
-            servicio.Precio = dto.Precio;
-            servicio.DuracionMin = dto.DuracionMin;
-            servicio.Descripcion = dto.Descripcion;
+                var ok = await _service.ActualizarServicio(id, nuevo);
 
-            await _context.SaveChangesAsync();
-            return NoContent();
+                if (!ok)
+                    return NotFound(new { mensaje = "Servicio no encontrado." });
+
+                return NoContent();
+            }
+            catch
+            {
+                return BadRequest(new { mensaje = "Error al actualizar el servicio." });
+            }
         }
 
-        // ============================================
-        // DELETE: api/Servicios/{id}
-        // ============================================
+
+        // ==========================================================
+        // DELETE: api/Servicios/5
+        // ==========================================================
         [HttpDelete("{id}")]
-        public async Task<IActionResult> EliminarServicio(int id)
+        public async Task<IActionResult> DeleteServicio(int id)
         {
-            var servicio = await _context.Servicios.FindAsync(id);
-            if (servicio == null)
-                return NotFound(new { mensaje = "Servicio no encontrado" });
+            try
+            {
+                var ok = await _service.EliminarServicio(id);
 
-            _context.Servicios.Remove(servicio);
-            await _context.SaveChangesAsync();
+                if (!ok)
+                    return NotFound(new { mensaje = "Servicio no encontrado." });
 
-            return NoContent();
+                return NoContent();
+            }
+            catch
+            {
+                return BadRequest(new { mensaje = "Error al eliminar el servicio." });
+            }
         }
     }
 }

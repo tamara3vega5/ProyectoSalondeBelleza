@@ -14,143 +14,112 @@ namespace Salon_Api.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Citas>> ObtenerCitas()
+        // Obtener TODAS las citas con relaciones
+        public async Task<List<Citas>> ObtenerCitas()
         {
-            try
-            {
-                return await _context.Citas
-                    .Include(c => c.Cliente)
-                    .Include(c => c.Estilista)
-                    .Include(c => c.Servicio)
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener las citas: " + ex.Message);
-            }
+            return await _context.Citas
+                .Include(c => c.Cliente)
+                .Include(c => c.Estilista)
+                .Include(c => c.Servicio)
+                .ToListAsync();
         }
 
+        // Obtener una sola cita
         public async Task<Citas?> ObtenerCita(int id)
         {
-            try
-            {
-                return await _context.Citas
-                    .Include(c => c.Cliente)
-                    .Include(c => c.Estilista)
-                    .Include(c => c.Servicio)
-                    .FirstOrDefaultAsync(c => c.IdCita == id);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener la cita: " + ex.Message);
-            }
+            return await _context.Citas
+                .Include(c => c.Cliente)
+                .Include(c => c.Estilista)
+                .Include(c => c.Servicio)
+                .FirstOrDefaultAsync(c => c.IdCita == id);
         }
+
+        // Crear cita
         public async Task<Citas> CrearCita(Citas cita)
         {
-            try
-            {
-                // Validación: estilista ocupado
-                bool estilistaOcupado = await _context.Citas
-                    .AnyAsync(c =>
-                        c.IdEstilista == cita.IdEstilista &&
-                        c.Fecha.Date == cita.Fecha.Date &&
-                        c.Fecha.Hour == cita.Fecha.Hour &&
-                        c.Fecha.Minute == cita.Fecha.Minute
-                    );
+            // Estilista ocupado
+            bool estilistaOcupado = await _context.Citas.AnyAsync(c =>
+                c.IdEstilista == cita.IdEstilista &&
+                c.Fecha == cita.Fecha
+            );
 
-                if (estilistaOcupado)
-                    throw new Exception("El estilista ya tiene una cita en esa fecha y hora.");
+            if (estilistaOcupado)
+                throw new Exception("El estilista ya tiene una cita en ese horario.");
 
-                // Validación: cliente ya tiene cita a la misma hora
-                bool clienteOcupado = await _context.Citas
-                    .AnyAsync(c =>
-                        c.IdCliente == cita.IdCliente &&
-                        c.Fecha.Date == cita.Fecha.Date &&
-                        c.Fecha.Hour == cita.Fecha.Hour &&
-                        c.Fecha.Minute == cita.Fecha.Minute
-                    );
+            // Cliente ocupado
+            bool clienteOcupado = await _context.Citas.AnyAsync(c =>
+                c.IdCliente == cita.IdCliente &&
+                c.Fecha == cita.Fecha
+            );
 
-                if (clienteOcupado)
-                    throw new Exception("El cliente ya tiene una cita en esa fecha y hora.");
+            if (clienteOcupado)
+                throw new Exception("El cliente ya posee otra cita en ese horario.");
 
-                // Guardar cita
-                _context.Citas.Add(cita);
-                await _context.SaveChangesAsync();
-                return cita;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al crear la cita: " + ex.Message);
-            }
+            _context.Citas.Add(cita);
+            await _context.SaveChangesAsync();
+
+            return await ObtenerCita(cita.IdCita);
         }
 
-
-        // ==========================================================
-        //                 ACTUALIZAR CITA (PUT)
-        // ==========================================================
-        public async Task<bool> ActualizarCita(int id, Citas cita)
+        // Actualizar cita
+        public async Task<bool> ActualizarCita(int id, Citas nueva)
         {
-            try
-            {
-                var existe = await _context.Citas.FindAsync(id);
-                if (existe == null) return false;
+            var cita = await _context.Citas.FindAsync(id);
+            if (cita == null)
+                return false;
 
-                // Validación: Estilista ocupado (excepto su propia cita)
-                bool estilistaOcupado = await _context.Citas
-                    .AnyAsync(c =>
-                        c.IdEstilista == cita.IdEstilista &&
-                        c.Fecha == cita.Fecha &&
-                        c.IdCita != id
-                    );
+            // Validación estilista
+            bool estilistaOcupado = await _context.Citas.AnyAsync(c =>
+                c.IdEstilista == nueva.IdEstilista &&
+                c.Fecha == nueva.Fecha &&
+                c.IdCita != id
+            );
 
-                if (estilistaOcupado)
-                    throw new Exception("El estilista ya tiene una cita en esa fecha y hora.");
+            if (estilistaOcupado)
+                throw new Exception("El estilista ya tiene una cita en ese horario.");
 
-                // Validación: Cliente ocupado (excepto su propia cita)
-                bool clienteOcupado = await _context.Citas
-                    .AnyAsync(c =>
-                        c.IdCliente == cita.IdCliente &&
-                        c.Fecha == cita.Fecha &&
-                        c.IdCita != id
-                    );
+            // Validación cliente
+            bool clienteOcupado = await _context.Citas.AnyAsync(c =>
+                c.IdCliente == nueva.IdCliente &&
+                c.Fecha == nueva.Fecha &&
+                c.IdCita != id
+            );
 
-                if (clienteOcupado)
-                    throw new Exception("El cliente ya tiene una cita en esa fecha y hora.");
+            if (clienteOcupado)
+                throw new Exception("El cliente ya tiene una cita en ese horario.");
 
-                // Actualizar datos
-                existe.IdCliente = cita.IdCliente;
-                existe.IdEstilista = cita.IdEstilista;
-                existe.IdServicio = cita.IdServicio;
-                existe.Fecha = cita.Fecha;
-                existe.Estado = cita.Estado;
+            cita.IdCliente = nueva.IdCliente;
+            cita.IdEstilista = nueva.IdEstilista;
+            cita.IdServicio = nueva.IdServicio;
+            cita.Fecha = nueva.Fecha;
+            cita.Estado = nueva.Estado;
 
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        // ==========================================================
-        //                 ELIMINAR CITA
-        // ==========================================================
+        // Eliminar cita
         public async Task<bool> EliminarCita(int id)
         {
-            try
-            {
-                var cita = await _context.Citas.FindAsync(id);
-                if (cita == null) return false;
+            var cita = await _context.Citas.FindAsync(id);
+            if (cita == null)
+                return false;
 
-                _context.Citas.Remove(cita);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al eliminar la cita: " + ex.Message);
-            }
+            _context.Citas.Remove(cita);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Cambiar estado
+        public async Task<bool> CambiarEstado(int idCita, string nuevoEstado)
+        {
+            var cita = await _context.Citas.FindAsync(idCita);
+            if (cita == null)
+                return false;
+
+            cita.Estado = nuevoEstado;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

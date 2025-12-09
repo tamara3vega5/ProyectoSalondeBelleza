@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Salon_Api.Data;
+using Salon_Api.Services.Interfaces;
+using Salon_Api.DTO;
 using Salon_Api.Modelo;
 
 namespace Salon_Api.Controllers
@@ -9,81 +9,102 @@ namespace Salon_Api.Controllers
     [ApiController]
     public class ProductosController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IProductosService _service;
 
-        public ProductosController(ApplicationDbContext context)
+        public ProductosController(IProductosService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // ============================================
-        // GET: api/Productos
-        // ============================================
+        // =================== GET (lista) ===================
         [HttpGet]
-        public async Task<IActionResult> GetProductos()
+        public async Task<ActionResult<IEnumerable<ProductoReadDto>>> GetProductos()
         {
-            var productos = await _context.Productos.ToListAsync();
-            return Ok(productos);
+            var data = await _service.ObtenerProductos();
+
+            var lista = data.Select(p => new ProductoReadDto
+            {
+                IdProducto = p.IdProducto,
+                NombreProducto = p.NombreProducto,
+                Descripcion = p.Descripcion,
+                Precio = p.Precio,
+                Stock = p.Stock,
+                Imagen = p.Imagen
+            });
+
+            return Ok(lista);
         }
 
-        // ============================================
-        // GET: api/Productos/{id}
-        // ============================================
+        // =================== GET (uno) ===================
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProducto(int id)
+        public async Task<ActionResult<ProductoReadDto>> GetProducto(int id)
         {
-            var producto = await _context.Productos.FindAsync(id);
-            if (producto == null)
-                return NotFound(new { mensaje = "Producto no encontrado" });
+            var p = await _service.ObtenerProducto(id);
 
-            return Ok(producto);
+            if (p == null)
+                return NotFound();
+
+            return Ok(new ProductoReadDto
+            {
+                IdProducto = p.IdProducto,
+                NombreProducto = p.NombreProducto,
+                Descripcion = p.Descripcion,
+                Precio = p.Precio,
+                Stock = p.Stock,
+                Imagen = p.Imagen
+            });
         }
 
-        // ============================================
-        // POST: api/Productos
-        // ============================================
+        // =================== POST ===================
         [HttpPost]
-        public async Task<IActionResult> CrearProducto([FromBody] Productos dto)
+        public async Task<ActionResult> PostProducto(ProductoCreateDto dto)
         {
-            _context.Productos.Add(dto);
-            await _context.SaveChangesAsync();
+            var nuevo = new Productos
+            {
+                NombreProducto = dto.NombreProducto,
+                Descripcion = dto.Descripcion,
+                Precio = dto.Precio,
+                Stock = dto.Stock,
+                Imagen = dto.Imagen
+            };
 
-            return CreatedAtAction(nameof(GetProducto), new { id = dto.IdProducto }, dto);
+            var creado = await _service.CrearProducto(nuevo);
+
+            return CreatedAtAction(nameof(GetProducto), new { id = creado.IdProducto }, creado);
         }
 
-        // ============================================
-        // PUT: api/Productos/{id}
-        // ============================================
+        // =================== PUT ===================
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarProducto(int id, [FromBody] Productos dto)
+        public async Task<ActionResult> PutProducto(int id, ProductoUpdateDto dto)
         {
-            var producto = await _context.Productos.FindAsync(id);
-            if (producto == null)
-                return NotFound(new { mensaje = "Producto no encontrado" });
+            var nuevo = new Productos
+            {
+                NombreProducto = dto.NombreProducto,
+                Descripcion = dto.Descripcion,
+                Precio = dto.Precio,
+                Stock = dto.Stock,
+                Imagen = dto.Imagen
+            };
 
-            producto.NombreProducto = dto.NombreProducto;
-            producto.Precio = dto.Precio;
-            producto.Stock = dto.Stock;
-            producto.Descripcion = dto.Descripcion;
+            var ok = await _service.ActualizarProducto(id, nuevo);
 
-            await _context.SaveChangesAsync();
+            if (!ok)
+                return NotFound();
+
             return NoContent();
         }
 
-        // ============================================
-        // DELETE: api/Productos/{id}
-        // ============================================
+        // =================== DELETE ===================
         [HttpDelete("{id}")]
-        public async Task<IActionResult> EliminarProducto(int id)
+        public async Task<ActionResult> DeleteProducto(int id)
         {
-            var producto = await _context.Productos.FindAsync(id);
-            if (producto == null)
-                return NotFound(new { mensaje = "Producto no encontrado" });
+            var ok = await _service.EliminarProducto(id);
 
-            _context.Productos.Remove(producto);
-            await _context.SaveChangesAsync();
+            if (!ok)
+                return NotFound();
 
             return NoContent();
         }
     }
 }
+

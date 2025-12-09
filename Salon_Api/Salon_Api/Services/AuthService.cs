@@ -17,20 +17,51 @@ namespace Salon_Api.Services
 
         public async Task<Clientes?> Login(LoginDto dto)
         {
-            // Buscar cliente por correo
+            // ===========================================
+            // VALIDACIONES BÁSICAS
+            // ===========================================
+            if (string.IsNullOrWhiteSpace(dto.Correo) ||
+                string.IsNullOrWhiteSpace(dto.Password))
+                return null;
+
+            string correoNormalizado = dto.Correo.Trim().ToLower();
+
+            // ===========================================
+            // BUSCAR USUARIO
+            // ===========================================
             var cliente = await _context.Clientes
-                .FirstOrDefaultAsync(c => c.Correo == dto.Correo);
+                .FirstOrDefaultAsync(c => c.Correo.ToLower() == correoNormalizado);
 
             if (cliente == null)
                 return null;
 
-            // Validar contraseña
+            // ===========================================
+            // SI EL PASSWORD FUE GUARDADO SIN HASH (COMPATIBILIDAD)
+            // ===========================================
+            if (!cliente.PasswordHash.StartsWith("$2"))
+            {
+                // Contraseña sin hash → solo coincide si es EXACTA
+                if (cliente.PasswordHash == dto.Password)
+                    return cliente;
+
+                return null;
+            }
+
+            // ===========================================
+            // VALIDAR CONTRASEÑA HASHED BCRYPT
+            // ===========================================
             bool valid = BCrypt.Net.BCrypt.Verify(dto.Password, cliente.PasswordHash);
 
             if (!valid)
                 return null;
 
-            return cliente; // El login es correcto
+            // ===========================================
+            // GARANTIZAR QUE EL ROL NUNCA SEA NULL
+            // ===========================================
+            if (string.IsNullOrWhiteSpace(cliente.Rol))
+                cliente.Rol = "cliente";
+
+            return cliente;
         }
     }
 }

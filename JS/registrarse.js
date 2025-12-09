@@ -1,52 +1,57 @@
-// =====================================
-//   REGISTRO DE USUARIO NUEVO (texto plano)
-// =====================================
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("register-form");
-  if (!form) return;
+const API_CLIENTES = "https://localhost:7024/api/Clientes";
 
-  form.addEventListener("submit", (e) => {
+// -------------------------------------------
+// FUNCIÓN PARA REGISTRO
+// -------------------------------------------
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const nombre = document.getElementById("reg-nombre").value.trim();
-    const email  = document.getElementById("reg-email").value.trim();
-    const pass   = document.getElementById("reg-pass").value.trim();
+    const nombre = document.getElementById("nombre").value.trim();
+    const correo = document.getElementById("correo").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-    if (usuarios.find(u => u.email === email)) {
-      mostrarMensaje("Este correo ya está registrado", true);
-      return;
+    if (!nombre || !correo || !password) {
+        alert("Por favor completa los campos obligatorios.");
+        return;
     }
 
-    const nuevoUsuario = {
-      nombre,
-      email,
-      password: pass,   // texto plano
-      rol: "usuario"
+    // Objeto que coincide EXACTAMENTE con ClienteCreateDto.cs
+    const nuevoCliente = {
+        nombre: nombre,
+        correo: correo,
+        telefono: telefono,
+        password: password,
+        fechaRegistro: new Date().toISOString()
     };
 
-    usuarios.push(nuevoUsuario);
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    try {
+        const res = await fetch(API_CLIENTES, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevoCliente)
+        });
 
-    mostrarMensaje("Cuenta creada con éxito. Redirigiendo...");
+        if (!res.ok) {
+            alert("No se pudo registrar el cliente.");
+            return;
+        }
 
-    // Sesión unificada
-    localStorage.setItem("usuarioConectado", JSON.stringify(nuevoUsuario));
+        const cliente = await res.json();
 
-    setTimeout(() => location.href = "index.html", 1200);
-  });
+        // Guardar sesión automáticamente
+        localStorage.setItem("usuario", JSON.stringify({
+            idCliente: cliente.idCliente,
+            nombre: cliente.nombre,
+            correo: cliente.correo,
+            rol: cliente.rol || "cliente"
+        }));
+
+        alert("Registro exitoso, bienvenido " + cliente.nombre);
+        window.location.href = "index.html";
+
+    } catch (error) {
+        console.error("Error al registrar:", error);
+        alert("Error al conectar con el servidor.");
+    }
 });
-
-function mostrarMensaje(texto, esError = false) {
-  let msg = document.querySelector(".login-msg");
-  if (!msg) {
-    msg = document.createElement("p");
-    msg.className = "login-msg";
-    msg.style.marginTop = "12px";
-    msg.style.fontWeight = "700";
-    document.getElementById("register-form").appendChild(msg);
-  }
-  msg.style.color = esError ? "#d9534f" : "#5E925C";
-  msg.textContent = texto;
-}

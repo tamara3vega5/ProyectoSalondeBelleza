@@ -1,5 +1,5 @@
 /* ===========================================================
-   JS/session.js  (Versión Final)
+   JS/session.js  (Versión Final CORREGIDA)
    -----------------------------------------------------------
    - Muestra el usuario en la barra superior.
    - Maneja el botón de salir.
@@ -15,7 +15,7 @@ if (window.location.pathname.includes("admin.html")) {
 
     document.addEventListener("DOMContentLoaded", () => {
 
-        const usuario = JSON.parse(localStorage.getItem("usuarioConectado"));
+        const usuario = JSON.parse(localStorage.getItem("usuario"));
         const userArea = document.getElementById("user-area");
 
         // Mostrar info del admin
@@ -33,13 +33,11 @@ if (window.location.pathname.includes("admin.html")) {
         const logoutBtn = document.getElementById("logout-btn");
         if (logoutBtn) {
             logoutBtn.addEventListener("click", () => {
-                localStorage.removeItem("usuarioConectado");
+                localStorage.removeItem("usuario");
                 window.location.href = "login.html";
             });
         }
     });
-
-    // NO return;  admin.html también usa el bloque general de abajo
 }
 
 
@@ -52,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const userArea = document.getElementById("user-area");
     if (!userArea) return;
 
-    const usuario = JSON.parse(localStorage.getItem("usuarioConectado"));
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
     if (!usuario) return;
 
     // Usuario administrador
@@ -89,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("usuarioConectado");
+            localStorage.removeItem("usuario");
             window.location.href = "login.html";
         });
     }
