@@ -1,9 +1,6 @@
-
 CREATE DATABASE MatchaSalon;
 USE MatchaSalon;
 GO
-
-
 CREATE TABLE Clientes (
     IdCliente INT IDENTITY(1,1) PRIMARY KEY,
     Nombre NVARCHAR(100) NOT NULL,
@@ -92,7 +89,7 @@ AS
 BEGIN
     IF EXISTS (SELECT 1 FROM Citas WHERE IdEstilista = @IdEstilista AND Fecha = @Fecha)
     BEGIN
-        RAISERROR('El horario no está disponible.', 16, 1);
+        RAISERROR('El horario no est� disponible.', 16, 1);
         RETURN;
     END
 
@@ -154,8 +151,8 @@ INSERT INTO Estilistas (Nombre, Especialidad, Telefono, Correo)
 VALUES
 ('Emilia', 'Cabello', '6000-0001', 'emilia@matchasalon.com'),
 ('Carlos', 'Cabello', '6000-0002', 'carlos@matchasalon.com'),
-('Antonella', 'Uñas', '6000-0003', 'antonella@matchasalon.com'),
-('Sofía', 'Faciales', '6000-0004', 'sofia@matchasalon.com'),
+('Antonella', 'U�as', '6000-0003', 'antonella@matchasalon.com'),
+('Sof�a', 'Faciales', '6000-0004', 'sofia@matchasalon.com'),
 ('Diego', 'Faciales', '6000-0005', 'diego@matchasalon.com'),
 ('Ana', 'Maquillaje', '6000-0006', 'ana@matchasalon.com');
 
@@ -163,28 +160,12 @@ VALUES
 ALTER TABLE Clientes
 ADD Contrasena NVARCHAR(255) NOT NULL DEFAULT('');
 
-
 INSERT INTO Productos (NombreProducto, Precio, Stock, Descripcion)
 VALUES
-('Shampoo Herbal Fresh 500ml', 8.99, 50, 'Shampoo natural para todo tipo de cabello'),
-('Acondicionador NutriSoft 300ml', 6.49, 35, 'Acondicionador hidratante con vitaminas'),
-('Cera para Cabello Ultra Hold 120g', 5.25, 40, 'Cera de fijación fuerte para peinados duraderos'),
-('Gel Capilar Extra Fuerte 250ml', 4.75, 56, 'Gel transparente de alto rendimiento'),
-('Tinte Negro Intenso Nº 1', 12.99, 14, 'Tinte profesional de larga duración'),
-('Tinte Castaño Claro Nº 6', 12.99, 18, 'Tinte permanente con nutrientes'),
-('Crema Capilar Reparadora 200ml', 7.80, 25, 'Crema reparadora para cabello dañado'),
-('Aceite de Argán 100ml', 9.50, 8, 'Aceite nutritivo para brillo y suavidad'),
-('Plancha Profesional Titanium Pro', 39.99, 10, 'Plancha para cabello de placas de titanio'),
-('Secadora UltraAir 3500W', 45.90, 8, 'Secadora profesional de alta potencia'),
-('Shampoo Herbal Fresh 500ml', 8.99, 50, 'Shampoo natural para todo tipo de cabello'),
-('Acondicionador NutriSoft 300ml', 6.49, 35, 'Acondicionador hidratante con vitaminas'),
-('Cera para Cabello Ultra Hold 120g', 5.25, 40, 'Cera de fijación fuerte para peinados duraderos'),
-('Gel Capilar Extra Fuerte 250ml', 4.75, 60, 'Gel transparente de alto rendimiento'),
-('Tinte Negro Intenso Nº 1', 12.99, 20, 'Tinte profesional de larga duración'),
-('Tinte Castaño Claro Nº 6', 12.99, 18, 'Tinte permanente con nutrientes'),
-('Crema Capilar Reparadora 200ml', 7.80, 25, 'Crema reparadora para cabello dañado'),
-('Aceite de Argán 100ml', 9.50, 15, 'Aceite nutritivo para brillo y suavidad'),
-('Plancha Profesional Titanium Pro', 39.99, 10, 'Plancha para cabello de placas de titanio'),
-('Secadora UltraAir 3500W', 45.90, 8, 'Secadora profesional de alta potencia');
-
-
+('Shampoo Herbal', 12.00, 20, 'Repara y fortalece desde el interior'),
+('Acondicionador Nutrisoft', 14.00, 18, 'Hidrataci�n profunda y brillo natural'),
+('Cera de Cabello', 15.00, 25, 'Cera para estilizar tus peinados favoritos'),
+('Gel para Cabello', 13.00, 30, 'Gel para definir rizos todo el d�a'),
+('Aceite de Cabello', 28.00, 10, 'Reduce el frizz sin dejar grasa'),
+('Plancha Profesional Titanium Pro', 39.99, 5, 'Plancha profesional de titanio'),
+('Secadora', 39.99, 6, 'Secadora profesional de alta velocidad');
