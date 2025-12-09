@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "sr5uN7sneIM=",
+  "dgSpecHash": "vGoU5bj5Exw=",
   "success": true,
-  "projectFilePath": "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\API_MatchaSalon\\Backend\\Salon_Api\\Salon_Api\\Salon_Api.csproj",
+  "projectFilePath": "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\ProyectoSalondeBelleza\\Salon_Api\\Salon_Api\\Salon_Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tamyl\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\tamyl\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

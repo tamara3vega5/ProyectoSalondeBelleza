@@ -41,7 +41,6 @@ namespace Salon_Api.Services
             existe.Descripcion = p.Descripcion;
             existe.Precio = p.Precio;
             existe.Stock = p.Stock;
-            existe.Imagen = p.Imagen;
 
             await _context.SaveChangesAsync();
             return true;

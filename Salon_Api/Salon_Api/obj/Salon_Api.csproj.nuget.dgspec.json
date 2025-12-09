@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\API_MatchaSalon\\Backend\\Salon_Api\\Salon_Api\\Salon_Api.csproj": {}
+    "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\ProyectoSalondeBelleza\\Salon_Api\\Salon_Api\\Salon_Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\API_MatchaSalon\\Backend\\Salon_Api\\Salon_Api\\Salon_Api.csproj": {
+    "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\ProyectoSalondeBelleza\\Salon_Api\\Salon_Api\\Salon_Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\API_MatchaSalon\\Backend\\Salon_Api\\Salon_Api\\Salon_Api.csproj",
+        "projectUniqueName": "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\ProyectoSalondeBelleza\\Salon_Api\\Salon_Api\\Salon_Api.csproj",
         "projectName": "Salon_Api",
-        "projectPath": "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\API_MatchaSalon\\Backend\\Salon_Api\\Salon_Api\\Salon_Api.csproj",
+        "projectPath": "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\ProyectoSalondeBelleza\\Salon_Api\\Salon_Api\\Salon_Api.csproj",
         "packagesPath": "C:\\Users\\tamyl\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\API_MatchaSalon\\Backend\\Salon_Api\\Salon_Api\\obj\\",
+        "outputPath": "C:\\Users\\tamyl\\OneDrive\\Escritorio\\Repositorio\\ProyectoSalondeBelleza\\Salon_Api\\Salon_Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

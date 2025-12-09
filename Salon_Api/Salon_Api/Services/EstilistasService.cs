@@ -58,4 +58,3 @@ namespace Salon_Api.Services
         }
     }
 }
-wai

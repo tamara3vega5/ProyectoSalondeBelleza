@@ -28,8 +28,7 @@ namespace Salon_Api.Controllers
                 NombreProducto = p.NombreProducto,
                 Descripcion = p.Descripcion,
                 Precio = p.Precio,
-                Stock = p.Stock,
-                Imagen = p.Imagen
+                Stock = p.Stock
             });
 
             return Ok(lista);
@@ -50,8 +49,7 @@ namespace Salon_Api.Controllers
                 NombreProducto = p.NombreProducto,
                 Descripcion = p.Descripcion,
                 Precio = p.Precio,
-                Stock = p.Stock,
-                Imagen = p.Imagen
+                Stock = p.Stock
             });
         }
 
@@ -64,8 +62,7 @@ namespace Salon_Api.Controllers
                 NombreProducto = dto.NombreProducto,
                 Descripcion = dto.Descripcion,
                 Precio = dto.Precio,
-                Stock = dto.Stock,
-                Imagen = dto.Imagen
+                Stock = dto.Stock
             };
 
             var creado = await _service.CrearProducto(nuevo);
@@ -82,8 +79,7 @@ namespace Salon_Api.Controllers
                 NombreProducto = dto.NombreProducto,
                 Descripcion = dto.Descripcion,
                 Precio = dto.Precio,
-                Stock = dto.Stock,
-                Imagen = dto.Imagen
+                Stock = dto.Stock
             };
 
             var ok = await _service.ActualizarProducto(id, nuevo);
